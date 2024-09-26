@@ -4,7 +4,6 @@
 'use strict';
 
 const Joi = require('joi');
-const mongoose = require('mongoose');
 const moment = require('moment-timezone');
 const { ETHEREUM_ADDRESS_REGEX, ALLOWED_EXTENSIONS_FOR_PROFILE_IMAGE } = require('./constants');
 const { S3_FILE_URL } = require('../../config');
@@ -18,21 +17,13 @@ joiUtils.Joi = Joi.extend((Joi) => ({
   type: 'string',
   base: Joi.string(),
   messages: {
-    'string.objectId': '{{#label}} must be a valid id',
     'string.emailMessage': '{{#label}} must be a valid email',
     'string.invalidTimeZone': '{{#label}} must be a valid timezone.',
     'string.ethereumAddress': '{{#label}} must be a valid ethereum addresses.',
     'string.imageUrl': '{{#label}} must be a valid image url or invalid image extension.',
   },
   rules: {
-    objectId: {
-      validate(value, helpers) {
-        if (mongoose.Types.ObjectId.isValid(value)) {
-          return mongoose.Types.ObjectId(value);
-        }
-        return helpers.error('string.objectId');
-      },
-    },
+
     isValidEmail: {
       validate(value, helpers) {
         const filter = /^([\w]+)(.[\w]+)*@([\w]+)(.[a-z]{2,3}){1,2}$/;

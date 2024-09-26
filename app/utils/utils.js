@@ -7,7 +7,6 @@ const pino = require('pino');
 const BCRYPT = require('bcrypt');
 const JWT = require('jsonwebtoken');
 const { createPinoBrowserSend, createWriteStream } = require('pino-logflare');
-const handlebars = require('handlebars');
 const CONSTANTS  = require('./constants');
 const {SOCKET_EVENTS , MESSAGES } = require('./constants');
 const CONFIG = require(`../../config`);

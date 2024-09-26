@@ -7,7 +7,6 @@ const swaggerUI = require('swagger-ui-express');
 const Joi = require('joi');
 const path = require('path');
 const basicAuth = require('express-basic-auth');
-const multer = require('multer');
 const fs = require('fs');
 const SERVICES = require('../services');
 const CONFIG = require('../../config');
@@ -15,7 +14,6 @@ const { MESSAGES, ERROR_TYPES } = require('./constants');
 const HELPERS = require('../helpers');
 const utils = require('./utils');
 
-const uploadMiddleware = multer();
 
 const routeUtils = {};
 
