@@ -29,7 +29,6 @@ authService.userValidate = () => async (req, res, next) => {
         if (!decodedToken || !decodedToken.userId) {
             return res.status(401).json(createErrorResponse(MESSAGES.UNAUTHORIZED, ERROR_TYPES.UNAUTHORIZED));
         }
-        console.log("nonono " ,  !decodedToken , !decodedToken.userId ) ;
         const { userId } = decodedToken;
         const user = await UserModel.findOne({ where: { id: userId } });
         if (!user) {

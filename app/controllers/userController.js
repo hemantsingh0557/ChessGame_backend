@@ -17,7 +17,6 @@ const userController = {};
 
 userController.userSignup = async (payload) => {
     const { imageUrl , name , email , username , age , password } = payload;
-    console.log(payload)
     const existingUser = await userService.findOne({
         [Op.or]: [{ email }, { username }]
     });
@@ -35,7 +34,7 @@ userController.userSignup = async (payload) => {
     });
     
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email, username}) ; 
-    return createSuccessResponse({ user , jwtToken }, 201); 
+    return createSuccessResponse( CONSTANTS.MESSAGES.SIGNEDUP_SUCCESSFULLY , { user , jwtToken }); 
 };
 
 
@@ -51,7 +50,7 @@ userController.userSignin = async (payload) => {
         return createErrorResponse( INVALID_PASSWORD , CONSTANTS.ERROR_TYPES.BAD_REQUEST);
     }
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email : user.email, username: user.username}) ;
-    return createSuccessResponse({ user , jwtToken }, 201); 
+    return createSuccessResponse( CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY , { user , jwtToken }); 
 };
 
 
@@ -78,7 +77,17 @@ userController.updateUser = async (payload) => {
             age,
         }
     );
-    return createSuccessResponse({ user: updatedUser }, 200);
+    return createSuccessResponse(CONSTANTS.MESSAGES.USER_UPDATED_SUCCESSFULLY ,   { user: updatedUser });
+};
+
+
+userController.getUserDetails = async (payload) => {
+    const { user } = payload;
+    const findUser = await userService.findOne({ id: user.id });
+    if (!findUser) {
+        return createErrorResponse(NO_USER_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
+    }
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { user: findUser });
 };
 
 

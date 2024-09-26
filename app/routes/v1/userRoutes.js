@@ -6,7 +6,7 @@ const { userController } = require('../../controllers');
 module.exports = [
     {
         method: 'POST',
-        path: '/userSingup',
+        path: '/userSignup',
         joiSchemaForSwagger: {
             group: 'SERVER',
             description: 'Route to regsiter user',
@@ -26,7 +26,7 @@ module.exports = [
     },
     {
         method: 'POST',
-        path: '/userSingin',
+        path: '/userSignin',
         joiSchemaForSwagger: {
             group: 'SERVER',
             description: 'Route to login user.',
@@ -53,8 +53,25 @@ module.exports = [
                 username : Joi.string().min(3).required() ,
                 age : Joi.number().min(10).max(100) ,
             },
+            headers: {
+                authorization: Joi.string().required()
+            }
         },
         auth : true , 
         handler: userController.updateUser,
+    },
+    {
+        method: 'GET',
+        path: '/getUserDetails',
+        joiSchemaForSwagger: {
+            group: 'SERVER',
+            description: 'Route to get user details',
+            model: 'UserModel',
+            headers: {
+                authorization: Joi.string().required()
+            }
+        },
+        auth : true , 
+        handler: userController.getUserDetails,
     },
 ];

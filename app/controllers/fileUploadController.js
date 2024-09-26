@@ -13,7 +13,7 @@ fileUploadController.uploadFile = async(payload) => {
     }
     const fileName = `profile_${user.id}_${Date.now()}.${file.originalname.split('.').pop()}`; // Unique filename
     const fileUrl = await fileUploadService.uploadFileToLocal(payload, fileName, null, null );
-    return createSuccessResponse({ fileUrl }, MESSAGES.FILE_UPLOADED_SUCCESSFULLY);
+    return createSuccessResponse(MESSAGES.FILE_UPLOADED_SUCCESSFULLY , { imageUrl: fileUrl } );
 
 }
 

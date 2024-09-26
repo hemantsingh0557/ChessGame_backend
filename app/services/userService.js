@@ -21,7 +21,7 @@ userService.updateUser = async (condition, updates) => {
     return null;  
 };
 
-userService.allUsersLookingForGameFromDB = async () => await UserModel.findAll({where : criteria }) ;
+userService.allUsersLookingForGameFromDB = async (criteria) => await UserModel.findAll(criteria) ;
 
 module.exports = userService;
 

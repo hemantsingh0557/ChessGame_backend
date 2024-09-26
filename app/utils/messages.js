@@ -1,4 +1,5 @@
 module.exports = {
+    SIGNEDUP_SUCCESSFULLY : "SIGNEDUP_SUCCESSFULLY" ,
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
     EMAIL_IS_WORKING_FINE: 'Email service is working fine.',
     AUTH_IS_WORKING_FINE: 'Auth is working fine.',
