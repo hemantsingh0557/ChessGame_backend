@@ -34,7 +34,7 @@ userController.userSignup = async (payload) => {
     });
     
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email, username}) ; 
-    return createSuccessResponse( CONSTANTS.MESSAGES.SIGNEDUP_SUCCESSFULLY , { user , jwtToken }); 
+    return createSuccessResponse( CONSTANTS.MESSAGES.SIGNEDUP_SUCCESSFULLY , { token : jwtToken }); 
 };
 
 
@@ -50,7 +50,7 @@ userController.userSignin = async (payload) => {
         return createErrorResponse( INVALID_PASSWORD , CONSTANTS.ERROR_TYPES.BAD_REQUEST);
     }
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email : user.email, username: user.username}) ;
-    return createSuccessResponse( CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY , { user , jwtToken }); 
+    return createSuccessResponse( CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY , { token : jwtToken }); 
 };
 
 
