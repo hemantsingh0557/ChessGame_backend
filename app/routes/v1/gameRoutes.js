@@ -1,3 +1,4 @@
+const { gameController } = require("../../controllers");
 
 
 
@@ -11,6 +12,6 @@ module.exports = [
             model: 'gameModel',
         } ,
         auth : false ,
-        handler: ,
+        handler: gameController.startGame ,
     }
 ]

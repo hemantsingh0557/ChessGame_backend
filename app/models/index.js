@@ -6,12 +6,12 @@
  ******************************* */
 
 // Import models
-const userModel = require('./userModel.js');
+const UserModel = require('./UserModel.js');
 
 
 // Define relationships
 
 module.exports = {
-  userModel,
+  UserModel,
   
 };

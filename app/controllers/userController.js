@@ -1,13 +1,13 @@
 'use strict';
 
-const { userModel } = require('../models');
+const { UserModel } = require('../models');
 const { userService } = require('../services');
 const { createSuccessResponse, createErrorResponse } = require('../helpers');
 const CONSTANTS = require('../utils/constants');
 const bcrypt = require('bcrypt');
 const { USER_ALREADY_EXISTS, NO_USER_FOUND, INVALID_PASSWORD } = require('../utils/messages');
 const commonFunctions = require('../utils/utils');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 /** ************************************************
  ***************** User Controller ***************
@@ -16,7 +16,7 @@ const userController = {};
 
 
 userController.userSignup = async (payload) => {
-    const { name , email , username , age , password } = payload;
+    const { imageUrl , name , email , username , age , password } = payload;
     console.log(payload)
     const existingUser = await userService.findOne({
         [Op.or]: [{ email }, { username }]
@@ -26,12 +26,14 @@ userController.userSignup = async (payload) => {
     }
     const hashedPassword = commonFunctions.hashPassword(password) ;
     const user = await userService.create({ 
+        imageUrl ,
         name , 
         email , 
         username , 
         age  , 
         password : hashedPassword , 
     });
+    
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email, username}) ; 
     return createSuccessResponse({ user , jwtToken }, 201); 
 };
@@ -54,8 +56,7 @@ userController.userSignin = async (payload) => {
 
 
 userController.updateUser = async (payload) => {
-    const { user , name, email, username, age } = payload;
-    // console.log( user, name, email, username, age );
+    const { user , imageUrl , name, email, username, age } = payload;
     const checkUser = await userService.findOne({ id: user.id });
     if (!checkUser) {
         return createErrorResponse(NO_USER_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
@@ -67,9 +68,16 @@ userController.updateUser = async (payload) => {
     if (existingUser) {
         return createErrorResponse(USER_ALREADY_EXISTS, CONSTANTS.ERROR_TYPES.ALREADY_EXISTS);
     }
-    const updatedUser = await userService.updateUser(user, {
-        name, email, username, age
-    });
+    const updatedUser = await userService.updateUser(
+        { id: user.id },  
+        {
+            imageUrl,
+            name,
+            email,
+            username,
+            age,
+        }
+    );
     return createSuccessResponse({ user: updatedUser }, 200);
 };
 

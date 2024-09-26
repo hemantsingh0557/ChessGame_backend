@@ -1,6 +1,6 @@
 'use strict';
 
-const { userModel } = require('../models');
+const { userModel, UserModel } = require('../models');
 const { NORMAL_PROJECTION } = require('../utils/constants');
 
 
@@ -13,18 +13,15 @@ userService.findOne = async (criteria) => await userModel.findOne({ where: crite
 
 userService.create = async (payload) => await userModel.create(payload);
 
-userService.updateUser = async (user, payload) => {
-    const { name, email, username, mobileNumber, profileImage, age, statusMessage } = payload;
-    if(name) user.name = name;
-    if(email) user.email = email;
-    if(username) user.username = username;
-    if(mobileNumber) user.mobileNumber = mobileNumber;
-    if(profileImage) user.profileImage = profileImage;
-    if(age) user.age = age;
-    if(statusMessage) user.statusMessage = statusMessage;
-    await user.save(); 
-    return user; 
+userService.updateUser = async (condition, updates) => {
+    const [updated] = await UserModel.update(updates, { where: condition });
+    if(updated) {
+        return UserModel.findOne({ where: condition }); 
+    }
+    return null;  
 };
+
+userService.allUsersLookingForGameFromDB = async () => await UserModel.findAll({where : criteria }) ;
 
 module.exports = userService;
 

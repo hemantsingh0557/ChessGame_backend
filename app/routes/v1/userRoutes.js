@@ -10,8 +10,9 @@ module.exports = [
         joiSchemaForSwagger: {
             group: 'SERVER',
             description: 'Route to regsiter user',
-            model: 'userModel',
+            model: 'UserModel',
             body :{
+                imageUrl: Joi.string().required() ,   
                 name: Joi.string().required() ,   
                 email: Joi.string().email().required() , 
                 username : Joi.string().min(3).required() ,
@@ -29,7 +30,7 @@ module.exports = [
         joiSchemaForSwagger: {
             group: 'SERVER',
             description: 'Route to login user.',
-            model: 'userModel',
+            model: 'UserModel',
             body : {
                 email: Joi.string().email().required(),
                 password: Joi.string().min(4).required(),
@@ -44,8 +45,9 @@ module.exports = [
         joiSchemaForSwagger: {
             group: 'SERVER',
             description: 'Route to update user',
-            model: 'userModel',
+            model: 'UserModel',
             body :{
+                imageUrl: Joi.string().required() ,  
                 name: Joi.string().required() ,   
                 email: Joi.string().email().required() , 
                 username : Joi.string().min(3).required() ,

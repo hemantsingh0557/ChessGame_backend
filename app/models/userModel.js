@@ -1,7 +1,7 @@
 const { DataTypes, UUID } = require('sequelize');
 const { sequelize } = require('../startup/db_mySql');
 
-const User = sequelize.define('User', {
+const UserModel = sequelize.define('UserModel', {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -60,4 +60,4 @@ const User = sequelize.define('User', {
     tableName: 'users',
 });
 
-module.exports = User;
+module.exports = UserModel;

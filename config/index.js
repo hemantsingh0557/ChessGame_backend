@@ -9,6 +9,7 @@ require('dotenv').config()
 const PLATFORM = process.env.PLATFORM || 'Backend';
 
 const defaults = {
+    PATH_TO_UPLOAD_SUBMISSIONS_ON_LOCAL : "public" ,
     MYSQL : {
         DATABASE : process.env.DB_NAME,
         USER : process.env.DB_USER,

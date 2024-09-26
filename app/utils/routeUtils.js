@@ -7,6 +7,7 @@ const swaggerUI = require('swagger-ui-express');
 const Joi = require('joi');
 const path = require('path');
 const basicAuth = require('express-basic-auth');
+const multer = require('multer');
 const fs = require('fs');
 const SERVICES = require('../services');
 const CONFIG = require('../../config');
@@ -14,6 +15,7 @@ const { MESSAGES, ERROR_TYPES } = require('./constants');
 const HELPERS = require('../helpers');
 const utils = require('./utils');
 
+const uploadMiddleware = multer();
 
 const routeUtils = {};
 
@@ -24,6 +26,10 @@ const routeUtils = {};
 routeUtils.route = async (app, routes = [] ) => {
     routes.forEach((route) => {
         let middlewares = [];
+        if (route.joiSchemaForSwagger.formData) {
+            const multerMiddleware = getMulterMiddleware(route.joiSchemaForSwagger.formData);
+            middlewares = [multerMiddleware];
+        }
         middlewares.push(getValidatorMiddleware(route));
         if (route.auth) {
             middlewares.push(SERVICES.authService.userValidate());
@@ -72,24 +78,6 @@ const joiValidatorMethod = async (request, route) => {
     }
 };
 
-/**
-*  Parse the object recived in multipart data request
-* @param {*} formBody
-* @param {*} request
-*/
-// let multiPartObjectParse = (formBody, request) => {
-//     let invalidKey;
-//     try {
-//         Object.keys(formBody)
-//             .filter((key) => ['object', 'array'].includes(formBody[key].type))
-//             .forEach((objKey) => {
-//                 invalidKey = objKey;
-//                 if (typeof request.body[objKey] === 'string') request.body[objKey] = JSON.parse(request.body[objKey]);
-//             });
-//     } catch (err) {
-//         throw new Error(`${invalidKey} must be of type object`);
-//     }
-// };
 
 /**
 * middleware to validate request body/params/query/headers with JOI.
@@ -183,5 +171,31 @@ let createSwaggerUIForRoutes = (app, routes = []) => {
         challenge: true,
     }), swaggerUI.serve, swaggerUI.setup(swaggerDocument, swaggerOptions));
 };
+
+
+let getMulterMiddleware = (formData) => {
+    // for multiple files
+    if (formData.files && Object.keys(formData.files).length) {
+        const fileFields = [];
+        const keys = Object.keys(formData.files);
+        keys.forEach((key) => {
+            fileFields.push({ name: key, maxCount: formData.files[key] });
+        });
+        return uploadMiddleware.fields(fileFields);
+    }
+    // for single file
+    if (formData.file && Object.keys(formData.file).length) {
+        const fileField = Object.keys(formData.file)[0];
+        return uploadMiddleware.single(fileField);
+    }
+    // for file array in single key
+    if (formData.fileArray && Object.keys(formData.fileArray).length) {
+        const fileField = Object.keys(formData.fileArray)[0];
+        return uploadMiddleware.array(fileField, formData.fileArray[fileField].maxCount);
+    }
+};
+
+
+
 
 module.exports = routeUtils;
