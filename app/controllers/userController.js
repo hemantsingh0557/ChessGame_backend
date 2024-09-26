@@ -16,7 +16,7 @@ const userController = {};
 
 
 userController.userSignup = async (payload) => {
-    const { name , email , username , mobileNumber , age  , statusMessage , password , confirmPassword } = payload;
+    const { name , email , username , age , password } = payload;
     console.log(payload)
     const existingUser = await userService.findOne({
         [Op.or]: [{ email }, { username }]
@@ -29,9 +29,7 @@ userController.userSignup = async (payload) => {
         name , 
         email , 
         username , 
-        mobileNumber , 
         age  , 
-        statusMessage , 
         password : hashedPassword , 
     });
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email, username}) ; 
@@ -56,8 +54,8 @@ userController.userSignin = async (payload) => {
 
 
 userController.updateUser = async (payload) => {
-    const { user , name, email, username, mobileNumber, profileImage, age, statusMessage } = payload;
-    // console.log( user, name, email, username, mobileNumber, profileImage, age, statusMessage  );
+    const { user , name, email, username, age } = payload;
+    // console.log( user, name, email, username, age );
     const checkUser = await userService.findOne({ id: user.id });
     if (!checkUser) {
         return createErrorResponse(NO_USER_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
@@ -70,7 +68,7 @@ userController.updateUser = async (payload) => {
         return createErrorResponse(USER_ALREADY_EXISTS, CONSTANTS.ERROR_TYPES.ALREADY_EXISTS);
     }
     const updatedUser = await userService.updateUser(user, {
-        name, email, username, mobileNumber, profileImage, age, statusMessage
+        name, email, username, age
     });
     return createSuccessResponse({ user: updatedUser }, 200);
 };

@@ -29,10 +29,20 @@ const User = sequelize.define('User', {
         allowNull: true,
         validate: { min: 10, max: 300 },
     },
+    isOnline: {
+        type:DataTypes.BOOLEAN ,
+        allowNull :false ,
+        defaultValue: true ,
+    },
     isLookingForGame: {
         type:DataTypes.BOOLEAN ,
         allowNull :false ,
         defaultValue: false ,
+    },
+    rating: {
+        type: DataTypes.INTEGER,
+        allowNull: false ,
+        defaultValue: 0,
     },
     password: {
         type: DataTypes.STRING,
