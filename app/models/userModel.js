@@ -1,11 +1,16 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, UUID } = require('sequelize');
 const { sequelize } = require('../startup/db_mySql');
 
 const User = sequelize.define('User', {
     id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
+    },
+    imageUrl: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        // validate: { isUrl: true }, 
     },
     name: {
         type: DataTypes.STRING,
@@ -27,7 +32,7 @@ const User = sequelize.define('User', {
     age: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        validate: { min: 10, max: 300 },
+        validate: { min: 10, max: 150 },
     },
     isOnline: {
         type:DataTypes.BOOLEAN ,
