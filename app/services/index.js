@@ -9,4 +9,5 @@ module.exports = {
     authService: require('./authService'),
     userService: require('./userService.js'),
     fileUploadService: require('./fileUploadService.js'),
+    gameService: require('./gameService.js'),
 };

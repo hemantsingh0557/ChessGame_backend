@@ -57,8 +57,7 @@ authService.socketAuthentication = async (socket, next) => {
         if (!user) {
             return next({ success: false, message: MESSAGES.UNAUTHORIZED });
         }
-        const userId = decodedToken.userId.toString();
-        socket.userId = userId;
+        socket.user = user;
 
         // const groupData = await dbService.find(conversationRoomModel, { 'members.userId': { $eq: socket.userId } });
         // if (!groupData) {

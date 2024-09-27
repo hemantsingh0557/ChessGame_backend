@@ -1,7 +1,7 @@
 'use strict';
 
 const { createSuccessResponse, createErrorResponse } = require("../helpers");
-const { userService } = require("../services");
+const { userService, gameService } = require("../services");
 const { MESSAGES, ERROR_TYPES } = require("../utils/constants");
 const { Op } = require('sequelize');
 
@@ -40,11 +40,16 @@ gameController.startGame = async (payload) => {
                     { [Op.or]: [{ id: userId }, { id: opponentPlayer.id }] },
                     { isOnline: false }
                 );
+
+                const gameRoom = await gameService.createGameRoom({
+                    userId1 : userId ,
+                    userId2 : opponentPlayer.id
+                }) ;
                 
                 // allUsersLookingForGame.forEach(opponentPlayer => {
                 //     userService.updateUserStatus(opponentPlayer.id, { isLookingForGame: false });
                 // });
-                return resolve(createSuccessResponse(MESSAGES.MATCH_FOUND_SUCCESSFULLY, { matchedPlayer: allUsersLookingForGame[0].id }));
+                return resolve(createSuccessResponse(MESSAGES.MATCH_FOUND_SUCCESSFULLY, { gameRoomId : gameRoom.id , opponentPlayerId: allUsersLookingForGame[0].id }));
             }
             setTimeout(checkForMatch, checkInterval);
         };

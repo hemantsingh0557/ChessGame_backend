@@ -50,6 +50,10 @@ module.exports = {
     SOCKET: {
         USER_CONNECTED_SUCCESSFULLY: 'Users Connected successfully',
         USER_DISCONNECT: 'User disconnected',
+        GAME_ROOM_NOT_EXISTS : "Game room does not exist" ,
+        ALREADY_IN_ROOM : "You are already in this game room" ,
+        ROOM_JOINED : "Successfully joined the room" ,
+
         SOCKET_IS_RUNNING_FINE: 'Socket is running fine',
         MESSAGE_SENT: 'Message sent successfully',
         MESSAGE_READ: 'Message read updated Successfully',
