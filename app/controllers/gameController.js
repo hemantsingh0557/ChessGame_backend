@@ -15,8 +15,8 @@ gameController.startGame = async (payload) => {
     const { user } = payload;
     const userId = user.id;
     console.log( userId ) ;
-    // await userService.updateUser({ id: userId }, { isLookingForGame: true });
-    await userService.updateUser({ id: userId }, { isOnline: true });
+    await userService.updateUser({ id: userId }, { isLookingForGame: true });
+    // await userService.updateUser({ id: userId }, { isOnline: true });
     const matchDuration = 60000;  
     const checkInterval = 5000;  
     const endTime = Date.now() + matchDuration;

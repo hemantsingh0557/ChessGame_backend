@@ -53,7 +53,7 @@ authService.socketAuthentication = async (socket, next) => {
         if (!decodedToken || !decodedToken.userId) {
             return next({ success: false, message: MESSAGES.UNAUTHORIZED });
         }
-        const user = await userService.findOne(decodedToken.userId);
+        const user = await userService.findOne({id: decodedToken.userId});
         if (!user) {
             return next({ success: false, message: MESSAGES.UNAUTHORIZED });
         }
