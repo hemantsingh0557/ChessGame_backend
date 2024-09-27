@@ -2,9 +2,9 @@
 
 const { Chess } = require("chess.js");
 const { createSuccessResponse, createErrorResponse } = require("../helpers");
-const { userService, gameService } = require("../services");
+const { userService, gameService, gameStateService } = require("../services");
 const { MESSAGES, ERROR_TYPES } = require("../utils/constants");
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 
 
@@ -46,13 +46,24 @@ gameController.startGame = async (payload) => {
                     userId1 : userId ,
                     userId2 : opponentPlayer.id ,
                 }) ;
-                const initialBoardState = new Chess() ;
-                const initialGameState = await gameService.createOrUpdateGameState({
-                    gameRoomId : gameRoom.id ,
-                    userId1 : userId ,
-                    userId2 : opponentPlayer.id ,
-                    boardState : initialBoardState
-                }) ;
+                const initialBoardState = new Chess().fen(); 
+
+                // const initialGameState = await gameStateService.createOrUpdateGameState(
+                //     { where : { gameRoomId : gameRoom.id  } } ,
+                //     { 
+                //         userId1 : userId ,
+                //         userId2 : opponentPlayer.id ,
+                //         boardState : initialBoardState 
+                //     }
+                // ) ;
+                const initialGameState = await gameStateService.createGameState(
+                    { 
+                        gameRoomId : gameRoom.id  ,
+                        userId1 : userId ,
+                        userId2 : opponentPlayer.id ,
+                        boardState : initialBoardState 
+                    }
+                ) ;
                 
                 // allUsersLookingForGame.forEach(opponentPlayer => {
                 //     userService.updateUserStatus(opponentPlayer.id, { isLookingForGame: false });

@@ -8,6 +8,7 @@
 // Import models
 const UserModel = require('./UserModel.js');
 const GameModel = require('./GameModel.js');
+const GameStateModel = require('./GameStateModel.js');
 
 
 // Define relationships
@@ -15,4 +16,5 @@ const GameModel = require('./GameModel.js');
 module.exports = {
   UserModel,
   GameModel ,
+  GameStateModel ,
 };

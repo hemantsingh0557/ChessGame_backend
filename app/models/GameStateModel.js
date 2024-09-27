@@ -1,7 +1,8 @@
-const { Sequelize, DataTypes } = require("sequelize");
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../startup/db_mySql');
 const CONSTANTS = require("../utils/constants");
 
-const GameStateModel = new Sequelize({
+const GameStateModel = sequelize.define('GameState', { 
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -20,23 +21,20 @@ const GameStateModel = new Sequelize({
         allowNull: false,
     },
     boardState: {
-        type: DataTypes.JSON,  
+        type: DataTypes.STRING,  
         allowNull: false,
     },
     currentTurn: {
         type: DataTypes.STRING,
-        defaultValue: CONSTANTS.GAME_TURNS.WHITE ,  
+        defaultValue: CONSTANTS.GAME_TURNS.WHITE, 
         allowNull: false,
     },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: CONSTANTS.GAME_STATUS.ONGOING , 
+        defaultValue: CONSTANTS.GAME_STATUS.ONGOING,
     },
-},
-{
+}, {
     timestamps: true,
     tableName: 'gamesState',
 });
-
-module.exports = GameStateModel;

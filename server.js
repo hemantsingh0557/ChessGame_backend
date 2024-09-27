@@ -14,7 +14,6 @@ const http = require('http');
 const process = require('process');
 const EXPRESS = require('express');
 const { SERVER } = require('./config');
-// const { Chess } = require('chess.js');
 
 /** creating express server app for server. */
 const app = EXPRESS();
@@ -36,8 +35,6 @@ const startNodeserver = async () => {
     await require('./app/startup/expressStartup')(app); 
     await require('./app/startup/socket').connect(io);
     
-    // const chess = new Chess() ;
-    // console.log( chess ) ;
     // await sequelize.sync({ force: true });
     await sequelize.sync({ alter: true });
 
