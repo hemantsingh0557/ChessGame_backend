@@ -5,6 +5,11 @@
 const CONSTANTS = {};
 CONSTANTS.SALT_ROUNDS = 6;
 
+CONSTANTS.SORT_ORDER = {
+    ASC: 'ASC',
+    DESC: 'DESC',
+}
+
 CONSTANTS.GAME_TURNS = {
     WHITE: "White",       
     BLACK: "Black",    
