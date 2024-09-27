@@ -1,5 +1,6 @@
 'use strict';
 
+const { Chess } = require("chess.js");
 const { createSuccessResponse, createErrorResponse } = require("../helpers");
 const { userService, gameService } = require("../services");
 const { MESSAGES, ERROR_TYPES } = require("../utils/constants");
@@ -43,13 +44,26 @@ gameController.startGame = async (payload) => {
 
                 const gameRoom = await gameService.createGameRoom({
                     userId1 : userId ,
-                    userId2 : opponentPlayer.id
+                    userId2 : opponentPlayer.id ,
+                }) ;
+                const initialBoardState = new Chess() ;
+                const initialGameState = await gameService.createOrUpdateGameState({
+                    gameRoomId : gameRoom.id ,
+                    userId1 : userId ,
+                    userId2 : opponentPlayer.id ,
+                    boardState : initialBoardState
                 }) ;
                 
                 // allUsersLookingForGame.forEach(opponentPlayer => {
                 //     userService.updateUserStatus(opponentPlayer.id, { isLookingForGame: false });
                 // });
-                return resolve(createSuccessResponse(MESSAGES.MATCH_FOUND_SUCCESSFULLY, { gameRoomId : gameRoom.id , opponentPlayerId: allUsersLookingForGame[0].id }));
+                const responseObejct = { 
+                    gameRoomId : gameRoom.id , 
+                    opponentPlayerId: opponentPlayer.id ,
+                    boardState : initialGameState.boardState,
+                    currentTurn : initialBoardState.currentTurn ,
+                }
+                return resolve(createSuccessResponse(MESSAGES.MATCH_FOUND_SUCCESSFULLY, responseObejct ));
             }
             setTimeout(checkForMatch, checkInterval);
         };

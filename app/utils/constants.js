@@ -5,6 +5,21 @@
 const CONSTANTS = {};
 CONSTANTS.SALT_ROUNDS = 6;
 
+CONSTANTS.GAME_TURNS = {
+    WHITE: "White",       
+    BLACK: "Black",    
+};
+CONSTANTS.GAME_STATUS = {
+    ONGOING: "ONGOING",       
+    COMPLETED: "COMPLETED",   
+    ABANDONED: "ABANDONED",   
+    CHECKMATE: "CHECKMATE",   
+    DRAW: "DRAW",             
+    RESIGNED: "RESIGNED",     
+};
+
+module.exports = CONSTANTS;
+
 CONSTANTS.SERVER = {
     ONE: 1,
 };

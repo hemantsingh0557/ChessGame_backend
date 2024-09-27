@@ -35,14 +35,14 @@ socketConnection.connect = (io) => {
             callback({ success: true, message: MESSAGES.SOCKET.ROOM_JOINED });
         });
         
-        // socket.on(SOCKET_EVENTS.VALID_MOVES_SELECTED_PLAYER, async (data, callback) => {
-        //     const { gameRoomId , userId1 , userId2 } = data;
+        socket.on(SOCKET_EVENTS.VALID_MOVES_SELECTED_PLAYER, async (data, callback) => {
+            const { gameRoomId , userId1 , userId2 } = data;
             
-        //     socket.join(gameRoomId);
-        //     console.log(`User ${userId} joined game room ${gameRoomId}`);
-        //     socket.to(gameRoomId).emit(SOCKET_EVENTS.USER_JOINED, { userId });
-        //     callback({ success: true, message: MESSAGES.SOCKET.ROOM_JOINED });
-        // });
+            socket.join(gameRoomId);
+            console.log(`User ${userId} joined game room ${gameRoomId}`);
+            socket.to(gameRoomId).emit(SOCKET_EVENTS.USER_JOINED, { userId });
+            callback({ success: true, message: MESSAGES.SOCKET.ROOM_JOINED });
+        });
         
         // socket.on(SOCKET_EVENTS.MOVE_PIECE, async (data, callback) => {
         //     const { gameRoomId , userId1 , userId2 } = data;
