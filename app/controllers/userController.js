@@ -49,6 +49,7 @@ userController.userSignin = async (payload) => {
     if(!isMatch) {
         return createErrorResponse( INVALID_PASSWORD , CONSTANTS.ERROR_TYPES.BAD_REQUEST);
     }
+    await userService.updateUser( { id : user.id } , { isOnline : true} ) ;
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email : user.email, username: user.username}) ;
     return createSuccessResponse( CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY , { token : jwtToken }); 
 };
@@ -56,10 +57,6 @@ userController.userSignin = async (payload) => {
 
 userController.updateUser = async (payload) => {
     const { user , imageUrl , name, email, username, age } = payload;
-    const checkUser = await userService.findOne({ id: user.id });
-    if (!checkUser) {
-        return createErrorResponse(NO_USER_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
-    }
     const existingUser = await userService.findOne({
         [Op.or]: [{ email }, { username }],
         id: { [Op.ne]: user.id }
@@ -84,9 +81,6 @@ userController.updateUser = async (payload) => {
 userController.getUserDetails = async (payload) => {
     const { user } = payload;
     const findUser = await userService.findOne({ id: user.id });
-    if (!findUser) {
-        return createErrorResponse(NO_USER_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
-    }
     return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { user: findUser });
 };
 

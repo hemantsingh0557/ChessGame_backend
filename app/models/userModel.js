@@ -20,13 +20,11 @@ const UserModel = sequelize.define('UserModel', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         validate: { isEmail: true },
     },
     username: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         validate: { len: [3, 30] },
     },
     age: {

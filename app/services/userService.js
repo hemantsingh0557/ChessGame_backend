@@ -14,8 +14,8 @@ userService.findOne = async (criteria) => await UserModel.findOne({ where: crite
 userService.create = async (payload) => await UserModel.create(payload);
 
 userService.updateUser = async (condition, updates) => {
-    const [updated] = await UserModel.update(updates, { where: condition });
-    if(updated) {
+    const [updatedCount] = await UserModel.update(updates, { where: condition });
+    if(updatedCount) {
         return UserModel.findOne({ where: condition }); 
     }
     return null;  

@@ -17,7 +17,7 @@ const fileUploadService = {};
  * function to upload file to local server.
  */
 fileUploadService.uploadFileToLocal = async (payload, fileName, pathToUpload, pathOnServer) => {
-    const directoryPath = pathToUpload || path.resolve(`${__dirname}../../../..${CONFIG.PATH_TO_UPLOAD_SUBMISSIONS_ON_LOCAL}`);
+    const directoryPath = pathToUpload || path.resolve(`${__dirname}../../../${CONFIG.PATH_TO_UPLOAD_SUBMISSIONS_ON_LOCAL}`);
     if (!fs.existsSync(directoryPath)) {
         fs.mkdirSync(directoryPath);
     }
@@ -34,7 +34,7 @@ fileUploadService.uploadFileToLocal = async (payload, fileName, pathToUpload, pa
             } 
             else {
                 const fileUrl = pathToUpload ? `${CONFIG.SERVER_URL}${pathOnServer}/${fileName}`
-                : `${CONFIG.SERVER_URL}${CONFIG.PATH_TO_UPLOAD_SUBMISSIONS_ON_LOCAL}/${fileName}`;
+                : `/${CONFIG.PATH_TO_UPLOAD_SUBMISSIONS_ON_LOCAL}/${fileName}`;
                 resolve(fileUrl);
             }
         });

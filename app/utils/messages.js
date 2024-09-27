@@ -1,5 +1,10 @@
 module.exports = {
+    NO_MATCH_FOUND : "NO_MATCH_FOUND" ,
+    MATCH_FOUND_SUCCESSFULLY : "MATCH_FOUND_SUCCESSFULLY" ,
     SIGNEDUP_SUCCESSFULLY : "SIGNEDUP_SUCCESSFULLY" ,
+    LOGGED_IN_SUCCESSFULLY: 'Logged in successfully.',
+    SUCCESS: 'Success.',
+
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
     EMAIL_IS_WORKING_FINE: 'Email service is working fine.',
     AUTH_IS_WORKING_FINE: 'Auth is working fine.',
@@ -13,7 +18,6 @@ module.exports = {
     INTERNAL_SERVER_ERROR: 'Internal server error!',
     UNAUTHORIZED: 'Unauthorized access!',
     FORBIDDEN: 'Unrestricted access!',
-    LOGGED_IN_SUCCESSFULLY: 'Logged in successfully.',
     USER_ALREADY_EXISTS: 'A user with this email or wallet address already exists.',
     EMAIL_ALREADY_EXISTS: 'Email already exists.',
     WALLET_ADDRESS_EXISTS: 'Wallet address already used by another account.',
@@ -28,7 +32,6 @@ module.exports = {
     REFERRAL_CODE_IS_VALID: "This referral code is valid.",
     REFERRAL_CODE_IS_INVALID: "This referral code is invalid.",
     NO_USER_FOUND_WITH_THIS_EMAIL: 'This email address is not associated with any existing account.',
-    SUCCESS: 'Success.',
     NO_USER_FOUND: 'User not found.',
     USER_UPDATED_SUCCESSFULLY: 'User updated profile information successfully.',
     FILE_REQUIRED_IN_PAYLOAD: 'File required in payload.',

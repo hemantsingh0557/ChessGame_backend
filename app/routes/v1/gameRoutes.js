@@ -11,7 +11,7 @@ module.exports = [
             description: 'Route to start game',
             model: 'gameModel',
         } ,
-        auth : false ,
+        auth : true ,
         handler: gameController.startGame ,
     }
 ]
