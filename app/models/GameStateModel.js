@@ -21,6 +21,11 @@ const GameStateModel = sequelize.define('GameState', {
         defaultValue: CONSTANTS.GAME_TURNS.WHITE, 
         allowNull: false,
     },
+    nextTurn: {
+        type: DataTypes.STRING,
+        defaultValue: CONSTANTS.GAME_TURNS.BLACK, 
+        allowNull: false,
+    },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
