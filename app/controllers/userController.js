@@ -84,6 +84,36 @@ userController.getUserDetails = async (payload) => {
     return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { user: findUser });
 };
 
+userController.getOtherUserDetails = async (payload) => {
+    const { otherUserId } = payload;
+    console.log( otherUserId ) ;
+    const findUser = await userService.findOne({ id: otherUserId });
+    console.log( findUser ) ;
+    const responseObject = {
+        imageUrl : findUser.imageUrl ,
+        name : findUser.name ,
+        username : findUser.username , 
+        rating : findUser.rating
+    }
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { otherUserDetails: responseObject });
+};
+
+userController.changePassword = async (payload) => {
+    const { user , oldPassword , newPassword } = payload;
+    const isMatch = commonFunctions.compareHash(oldPassword , user.password) ;
+    if(!isMatch) {
+        return createErrorResponse( INVALID_PASSWORD , CONSTANTS.ERROR_TYPES.BAD_REQUEST);
+    }
+    const hashedPassword = commonFunctions.hashPassword(newPassword) ;
+    const updatedUser = await userService.updateUser(
+        { id: user.id },  
+        {
+            password : hashedPassword
+        }
+    );
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { user: updatedUser });
+};
+
 
 
 module.exports = userController;
