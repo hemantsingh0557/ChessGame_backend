@@ -51,7 +51,7 @@ module.exports = [
                 name: Joi.string().required() ,   
                 email: Joi.string().email().required() , 
                 username : Joi.string().min(3).required() ,
-                age : Joi.number().min(10).max(100) ,
+                age : Joi.number().max(150) ,
             },
             headers: {
                 authorization: Joi.string().required()

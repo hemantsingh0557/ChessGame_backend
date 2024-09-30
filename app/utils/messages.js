@@ -54,6 +54,8 @@ module.exports = {
         GAME_ROOM_NOT_EXISTS : "Game room does not exist" ,
         ALREADY_IN_ROOM : "You are already in this game room" ,
         ROOM_JOINED : "Successfully joined the room" ,
+        MATCH_FOUND : "MATCH_FOUND" ,
+        NO_MATCH_FOUND : "No players found. Please try again later." ,
         GAME_STATE_NOT_FOUND : "Game state not found." ,
         INVALID_MOVE : "Invalid move." ,
         MOVE_SUCCESS : "Move made successfully." ,

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 const { where, Op } = require('sequelize');
-const { authService, userService, gameService, gameStateService } = require('../services');
+const { authService, userService, gameService, gameStateService, waitingPlayerService } = require('../services');
 const { MESSAGES, SOCKET_EVENTS } = require('../utils/constants');
 const commonFunctions = require('../utils/utils');
 const CONSTANTS = require('../utils/constants');
@@ -23,61 +23,60 @@ socketConnection.connect = (io) => {
         await userService.updateUser( { id : userId } , { isOnline : true } ) ;
 
         socket.on(SOCKET_EVENTS.START_GAME, async (callback) => {
-            // Start game logic
-            console.log("okoko " )
-            await userService.updateUser({ id: userId }, { isLookingForGame: true });
-            const matchDuration = CONSTANTS.MATCH_DURATION;  
-            const checkInterval = CONSTANTS.CHECK_INTERVAL;  
-            const endTime = Date.now() + matchDuration;
-
-            const checkForMatch = async () => {
-                if (Date.now() >= endTime) {
-                    await userService.updateUser({ id: userId }, { isLookingForGame: false });
-                    return callback({ success: false, message: MESSAGES.NO_MATCH_FOUND });
-                }
-                const allUsersLookingForGame = await userService.allUsersLookingForGameFromDB({
+            console.log("Starting game..." , userId );
+            await waitingPlayerService.addPlayerToWaitingListInDb({ userId });
+            const startTime = Date.now();
+            const waitDuration = CONSTANTS.MATCH_DURATION;  
+            while (Date.now() - startTime < waitDuration) {
+                const findAllPlayerWaitingForMatch = await waitingPlayerService.findAllPlayerWaitingForMatchFromDb({
                     where: {
-                        isLookingForGame: true,
-                        id: {
-                            [Op.ne]: userId 
-                        }
-                    }
+                        userId: { [Op.ne]: userId  }
+                    },
+                    limit: 1,
+                    order: [['createdAt', 'ASC']],
                 });
-                if (allUsersLookingForGame.length > 0) {
-                    const opponentPlayer = allUsersLookingForGame[0];
-                    await userService.updateUser(
-                        { [Op.or]: [{ id: userId }, { id: opponentPlayer.id }] },
-                        { isLookingForGame: false }
-                    );
-                    const gameRoom = await gameService.createGameRoom({
-                        userId1: userId,
-                        userId2: opponentPlayer.id,
+                if (findAllPlayerWaitingForMatch.length >= 1) {
+                    const opponentPlayer = findAllPlayerWaitingForMatch[0];
+                    await waitingPlayerService.removePlayerFromWaitingListInDb({
+                        where: {
+                            [Op.or]: [
+                                { userId: opponentPlayer.userId },
+                                { userId: userId }
+                            ]
+                        }
                     });
+                    socket.to(userId).emit(SOCKET_EVENTS.GAME_MATCHED, { opponents: opponentPlayer.userId });
+                    socket.to(opponentPlayer.userId).emit(SOCKET_EVENTS.GAME_MATCHED, { opponents: userId });
+                    const gameRoom = await gameService.createGameRoom({
+                        userId1 : userId ,
+                        userId2 : opponentPlayer.userId ,
+                    }) ;
                     const initialBoardState = new Chess().fen(); 
                     const initialGameState = await gameStateService.createGameState(
                         { 
-                            gameRoomId: gameRoom.id,
-                            boardState: initialBoardState 
+                            gameRoomId : gameRoom.id  ,
+                            boardState : initialBoardState 
                         }
-                    );
-                    const responseObject = { 
-                        gameRoomId: gameRoom.id, 
-                        opponentPlayerId: opponentPlayer.id,
-                        boardState: initialGameState.boardState,
-                        currentTurn: CONSTANTS.GAME_TURNS.WHITE , 
-                    };
-                    socket.join(gameRoom.id);
-                    socket.emit(SOCKET_EVENTS.MATCH_FOUND, responseObject);
-                    socket.to(opponentPlayer.id).emit(SOCKET_EVENTS.MATCH_FOUND, responseObject);
-                    return callback({ success: true, message: MESSAGES.MATCH_FOUND_SUCCESSFULLY, responseObject });
-                } 
-                else {
-                    setTimeout(checkForMatch, checkInterval);
+                    ) ;
+                    const responseObejct = { 
+                        gameRoomId : gameRoom.id , 
+                        userId : userId ,
+                        opponentPlayerId: opponentPlayer.userId ,
+                        boardState : initialGameState.boardState,
+                        currentTurn : initialBoardState.currentTurn ,
+                    }
+                    console.log( "responseObejct" ,  responseObejct ) ;
+                    if( typeof callback === 'function' ) return callback({ success: true, message: MESSAGES.SOCKET.MATCH_FOUND , data : responseObejct });
+                    console.log( "callback not funciton " ,  responseObejct ) ;
+                    return ;
                 }
-            };
-
-            checkForMatch(); 
+                await new Promise(resolve => setTimeout(resolve, CONSTANTS.CHECK_INTERVAL));
+            }
+            if( typeof callback === 'function' ) return callback({ success: false, message: MESSAGES.SOCKET.NO_MATCH_FOUND });
+            return ;
         });
+        
+        
 
 
         // socket.on(SOCKET_EVENTS.JOIN_GAME_ROOM, async (data, callback) => {

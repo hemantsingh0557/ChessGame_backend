@@ -11,4 +11,5 @@ module.exports = {
     fileUploadService: require('./fileUploadService.js'),
     gameService: require('./gameService.js'),
     gameStateService: require('./gameStateService.js'),
+    waitingPlayerService: require('./waitingPlayerService.js'),
 };
