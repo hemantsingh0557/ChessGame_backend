@@ -12,14 +12,6 @@ const GameStateModel = sequelize.define('GameState', {
         type: DataTypes.UUID,
         allowNull: false,
     },
-    userId1: {
-        type: DataTypes.UUID,
-        allowNull: false,
-    },
-    userId2: {
-        type: DataTypes.UUID,
-        allowNull: false,
-    },
     boardState: {
         type: DataTypes.STRING,  
         allowNull: false,

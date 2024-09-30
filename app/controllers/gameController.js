@@ -5,6 +5,7 @@ const { createSuccessResponse, createErrorResponse } = require("../helpers");
 const { userService, gameService, gameStateService } = require("../services");
 const { MESSAGES, ERROR_TYPES } = require("../utils/constants");
 const { Op, where } = require('sequelize');
+const CONSTANTS = require("../utils/constants");
 
 
 
@@ -17,8 +18,8 @@ gameController.startGame = async (payload) => {
     console.log( userId ) ;
     await userService.updateUser({ id: userId }, { isLookingForGame: true });
     // await userService.updateUser({ id: userId }, { isOnline: true });
-    const matchDuration = 60000;  
-    const checkInterval = 5000;  
+    const matchDuration = CONSTANTS.MATCH_DURATION;  
+    const checkInterval = CONSTANTS.CHECK_INTERVAL ;  
     const endTime = Date.now() + matchDuration;
     return new Promise((resolve, reject) => {
         const checkForMatch = async () => {
@@ -59,8 +60,6 @@ gameController.startGame = async (payload) => {
                 const initialGameState = await gameStateService.createGameState(
                     { 
                         gameRoomId : gameRoom.id  ,
-                        userId1 : userId ,
-                        userId2 : opponentPlayer.id ,
                         boardState : initialBoardState 
                     }
                 ) ;
