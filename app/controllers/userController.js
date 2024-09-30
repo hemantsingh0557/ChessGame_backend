@@ -49,7 +49,7 @@ userController.userSignin = async (payload) => {
     if(!isMatch) {
         return createErrorResponse( INVALID_PASSWORD , CONSTANTS.ERROR_TYPES.BAD_REQUEST);
     }
-    // await userService.updateUser( { id : user.id } , { isOnline : true} ) ;
+    await userService.updateUser( { id : user.id } , { isOnline : true} ) ;
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email : user.email, username: user.username}) ;
     return createSuccessResponse( CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY , { token : jwtToken }); 
 };

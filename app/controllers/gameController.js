@@ -15,9 +15,9 @@ const gameController = {};
 gameController.startGame = async (payload) => {
     const { user } = payload;
     const userId = user.id;
-    console.log( userId ) ;
-    await userService.updateUser({ id: userId }, { isLookingForGame: true });
-    // await userService.updateUser({ id: userId }, { isOnline: true });
+    // console.log( userId ) ;
+    // await userService.updateUser({ id: userId }, { isLookingForGame: true });
+    await userService.updateUser({ id: userId }, { isOnline: true });
     const matchDuration = CONSTANTS.MATCH_DURATION;  
     const checkInterval = CONSTANTS.CHECK_INTERVAL ;  
     const endTime = Date.now() + matchDuration;
@@ -37,7 +37,10 @@ gameController.startGame = async (payload) => {
             });
             if (allUsersLookingForGame.length > 0) {
                 const opponentPlayer = allUsersLookingForGame[0] ;
-                // await userService.updateUser( {id : opponentPlayer.id } , { isLookingForGame: false });
+                // await userService.updateUser( 
+                //     { [Op.or]: [{ id: userId }, { id: opponentPlayer.id }] },
+                //     { isLookingForGame: false }
+                // );
                 await userService.updateUser(
                     { [Op.or]: [{ id: userId }, { id: opponentPlayer.id }] },
                     { isOnline: false }

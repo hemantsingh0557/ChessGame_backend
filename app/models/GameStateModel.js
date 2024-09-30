@@ -28,5 +28,8 @@ const GameStateModel = sequelize.define('GameState', {
     },
 }, {
     timestamps: true,
-    tableName: 'gamesState',
+    tableName: 'gamesStates',
 });
+
+
+module.exports = GameStateModel ;
