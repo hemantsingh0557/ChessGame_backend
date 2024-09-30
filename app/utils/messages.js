@@ -4,7 +4,9 @@ module.exports = {
     SIGNEDUP_SUCCESSFULLY : "SIGNEDUP_SUCCESSFULLY" ,
     LOGGED_IN_SUCCESSFULLY: 'Logged in successfully.',
     SUCCESS: 'Success.',
+    NO_USER_FOUND: 'User not found.',
 
+    
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
     EMAIL_IS_WORKING_FINE: 'Email service is working fine.',
     AUTH_IS_WORKING_FINE: 'Auth is working fine.',
@@ -32,7 +34,6 @@ module.exports = {
     REFERRAL_CODE_IS_VALID: "This referral code is valid.",
     REFERRAL_CODE_IS_INVALID: "This referral code is invalid.",
     NO_USER_FOUND_WITH_THIS_EMAIL: 'This email address is not associated with any existing account.',
-    NO_USER_FOUND: 'User not found.',
     USER_UPDATED_SUCCESSFULLY: 'User updated profile information successfully.',
     FILE_REQUIRED_IN_PAYLOAD: 'File required in payload.',
     FILE_UPLOADED_SUCCESSFULLY: 'File uploaded successfully.',
@@ -56,16 +57,13 @@ module.exports = {
         GAME_STATE_NOT_FOUND : "Game state not found." ,
         INVALID_MOVE : "Invalid move." ,
         MOVE_SUCCESS : "Move made successfully." ,
+        INVALID_GAMEROOM_ID: 'INVALID_GAMEROOM_ID',
+        INVALID_GAMEROOM_ID_OR_SELECTED_POSITION: 'INVALID_GAMEROOM_ID_OR_SELECTED_POSITION',
 
         SOCKET_IS_RUNNING_FINE: 'Socket is running fine',
         MESSAGE_SENT: 'Message sent successfully',
         MESSAGE_READ: 'Message read updated Successfully',
         ERROR_JOINING_ROOM: 'Error in joining the room',
-        ERROR_SENDING_MESSAGE: 'Error in sending the message',
-        ERROR_JOINING_GROUP: 'Error in joining the group room',
-        ERROR_SENDING_GROUP_MESSAGE: 'Error in sending the group message',
-        INVALID_MESSAGE_PAYLOAD: 'INVALID_MESSAGE_PAYLOAD',
-        INVALID_ROOM_ID: 'INVALID_ROOM_ID',
-        INVALID_GROUP_MESSAGE_PAYLOAD: 'INVALID_GROUP_MESSAGE_PAYLOAD',
+        
     },
 };

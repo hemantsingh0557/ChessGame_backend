@@ -15,9 +15,7 @@ const gameController = {};
 gameController.startGame = async (payload) => {
     const { user } = payload;
     const userId = user.id;
-    // console.log( userId ) ;
-    // await userService.updateUser({ id: userId }, { isLookingForGame: true });
-    await userService.updateUser({ id: userId }, { isOnline: true });
+    await userService.updateUser({ id: userId }, { isLookingForGame: true });
     const matchDuration = CONSTANTS.MATCH_DURATION;  
     const checkInterval = CONSTANTS.CHECK_INTERVAL ;  
     const endTime = Date.now() + matchDuration;
@@ -28,8 +26,7 @@ gameController.startGame = async (payload) => {
             }
             const allUsersLookingForGame = await userService.allUsersLookingForGameFromDB({
                 where: {
-                    // isLookingForGame: true,
-                    isOnline: true,
+                    isLookingForGame: true,
                     id: {
                         [Op.ne]: userId 
                     }
@@ -37,39 +34,21 @@ gameController.startGame = async (payload) => {
             });
             if (allUsersLookingForGame.length > 0) {
                 const opponentPlayer = allUsersLookingForGame[0] ;
-                // await userService.updateUser( 
-                //     { [Op.or]: [{ id: userId }, { id: opponentPlayer.id }] },
-                //     { isLookingForGame: false }
-                // );
-                await userService.updateUser(
+                await userService.updateUser( 
                     { [Op.or]: [{ id: userId }, { id: opponentPlayer.id }] },
-                    { isOnline: false }
+                    { isLookingForGame: false }
                 );
-
                 const gameRoom = await gameService.createGameRoom({
                     userId1 : userId ,
                     userId2 : opponentPlayer.id ,
                 }) ;
                 const initialBoardState = new Chess().fen(); 
-
-                // const initialGameState = await gameStateService.createOrUpdateGameState(
-                //     { where : { gameRoomId : gameRoom.id  } } ,
-                //     { 
-                //         userId1 : userId ,
-                //         userId2 : opponentPlayer.id ,
-                //         boardState : initialBoardState 
-                //     }
-                // ) ;
                 const initialGameState = await gameStateService.createGameState(
                     { 
                         gameRoomId : gameRoom.id  ,
                         boardState : initialBoardState 
                     }
                 ) ;
-                
-                // allUsersLookingForGame.forEach(opponentPlayer => {
-                //     userService.updateUserStatus(opponentPlayer.id, { isLookingForGame: false });
-                // });
                 const responseObejct = { 
                     gameRoomId : gameRoom.id , 
                     opponentPlayerId: opponentPlayer.id ,
@@ -78,7 +57,9 @@ gameController.startGame = async (payload) => {
                 }
                 return resolve(createSuccessResponse(MESSAGES.MATCH_FOUND_SUCCESSFULLY, responseObejct ));
             }
-            setTimeout(checkForMatch, checkInterval);
+            else {
+                setTimeout(checkForMatch, checkInterval);
+            }
         };
         checkForMatch(); 
     });

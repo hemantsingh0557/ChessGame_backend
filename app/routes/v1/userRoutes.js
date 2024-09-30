@@ -8,9 +8,9 @@ module.exports = [
         method: 'POST',
         path: '/userSignup',
         joiSchemaForSwagger: {
-            group: 'SERVER',
+            group: 'User',
             description: 'Route to regsiter user',
-            model: 'UserModel',
+            model: 'userSignup',
             body :{
                 imageUrl: Joi.string().required() ,   
                 name: Joi.string().required() ,   
@@ -28,9 +28,9 @@ module.exports = [
         method: 'POST',
         path: '/userSignin',
         joiSchemaForSwagger: {
-            group: 'SERVER',
+            group: 'User',
             description: 'Route to login user.',
-            model: 'UserModel',
+            model: 'userSignin',
             body : {
                 email: Joi.string().email().required(),
                 password: Joi.string().min(4).required(),
@@ -43,9 +43,9 @@ module.exports = [
         method: 'PUT',
         path: '/updateUser',
         joiSchemaForSwagger: {
-            group: 'SERVER',
+            group: 'User',
             description: 'Route to update user',
-            model: 'UserModel',
+            model: 'updateUser',
             body :{
                 imageUrl: Joi.string().required() ,  
                 name: Joi.string().required() ,   
@@ -64,9 +64,9 @@ module.exports = [
         method: 'GET',
         path: '/getUserDetails',
         joiSchemaForSwagger: {
-            group: 'SERVER',
+            group: 'User',
             description: 'Route to get user details',
-            model: 'UserModel',
+            model: 'getUserDetails',
             headers: {
                 authorization: Joi.string().required()
             }
@@ -78,23 +78,29 @@ module.exports = [
         method: 'GET',
         path: '/getOtherUserDetails/:otherUserId',
         joiSchemaForSwagger: {
-            group: 'SERVER',
+            group: 'User',
             description: 'Route to get other user details',
-            model: 'UserModel',
+            model: 'getOtherUserDetails',
+            headers: {
+                authorization: Joi.string().required()
+            } ,
             params : {
                 otherUserId : Joi.string().required() ,
             }
         },
-        auth : false , 
+        auth : true , 
         handler: userController.getOtherUserDetails,
     },
     {
         method: 'PUT',
         path: '/changePassword',
         joiSchemaForSwagger: {
-            group: 'SERVER',
+            group: 'User',
             description: 'Route to change password',
-            model: 'UserModel',
+            model: 'changePassword',
+            headers: {
+                authorization: Joi.string().required()
+            } ,
             body :{
                 oldPassword: Joi.string().min(4).required() , // // match: [/(?=.*[a-zA-Z])(?=.*\d)(?=.*\W)/, 'Password must contain at least one letter, one number, and one special character']
                 newPassword: Joi.string().min(4).required() , // // match: [/(?=.*[a-zA-Z])(?=.*\d)(?=.*\W)/, 'Password must contain at least one letter, one number, and one special character']

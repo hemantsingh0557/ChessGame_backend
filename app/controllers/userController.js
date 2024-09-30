@@ -74,28 +74,48 @@ userController.updateUser = async (payload) => {
             age,
         }
     );
-    return createSuccessResponse(CONSTANTS.MESSAGES.USER_UPDATED_SUCCESSFULLY ,   { user: updatedUser });
+    const responseObject = {
+        id : updatedUser.id ,
+        imageUrl : updatedUser.imageUrl ,
+        name : updatedUser.name ,
+        email : updatedUser.email ,
+        username : updatedUser.username ,
+        age : updatedUser.age ,
+        rating : updatedUser.rating
+    }
+    return createSuccessResponse(CONSTANTS.MESSAGES.USER_UPDATED_SUCCESSFULLY ,   responseObject );
 };
 
 
 userController.getUserDetails = async (payload) => {
     const { user } = payload;
     const findUser = await userService.findOne({ id: user.id });
-    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { user: findUser });
+    const responseObject = {
+        id : findUser.id ,
+        imageUrl : findUser.imageUrl ,
+        name : findUser.name ,
+        email : findUser.email , 
+        username : findUser.username ,
+        age : findUser.age ,
+        rating : findUser.rating
+    }
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   responseObject);
 };
 
 userController.getOtherUserDetails = async (payload) => {
     const { otherUserId } = payload;
-    console.log( otherUserId ) ;
     const findUser = await userService.findOne({ id: otherUserId });
-    console.log( findUser ) ;
+    if( !findUser ) {
+        return createErrorResponse( NO_USER_FOUND , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND )
+    }
     const responseObject = {
+        id : otherUserId ,
         imageUrl : findUser.imageUrl ,
         name : findUser.name ,
         username : findUser.username , 
         rating : findUser.rating
     }
-    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { otherUserDetails: responseObject });
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   responseObject );
 };
 
 userController.changePassword = async (payload) => {
@@ -111,7 +131,16 @@ userController.changePassword = async (payload) => {
             password : hashedPassword
         }
     );
-    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS ,   { user: updatedUser });
+    // const responseObject = {
+    //     id : updatedUser.id ,
+    //     imageUrl : updatedUser.imageUrl ,
+    //     name : updatedUser.name ,
+    //     email : updatedUser.email ,
+    //     username : updatedUser.username ,
+    //     age : updatedUser.age ,
+    //     rating : updatedUser.rating
+    // }
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS  );
 };
 
 

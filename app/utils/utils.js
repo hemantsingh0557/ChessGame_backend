@@ -26,32 +26,34 @@ const commonFunctions = {};
 
 commonFunctions.validateSocketEvent = (packet, next) => {
     const eventName = packet[0]; 
-    const data = JSON.parse(packet[1]);
-    console.log("validate Received packet  :", packet );
+    const data = packet[1];
+    // const data = JSON.parse(packet[1]);
+    // packet[1] = data ;
+    // console.log("validate Received packet  :", packet );
     console.log("validate Received data  :", data);
-    if (eventName === SOCKET_EVENTS.JOIN_ROOM) {
-        console.log( "room", eventName )
-        if (!data.roomId) {
-            console.log( "room id ", data.roomId )
-            return next(new Error(MESSAGES.SOCKET.INVALID_ROOM_ID));
+    if (eventName === SOCKET_EVENTS.START_GAME) {
+        // console.log( "room=> ", eventName )
+        // if (!data.gameRoomId) {
+        //     console.log( "room id ", data.gameRoomId )
+        //     return next(new Error(MESSAGES.SOCKET.INVALID_GAMEROOM_ID));
+        // }
+    }
+    else if (eventName === SOCKET_EVENTS.JOIN_GAME_ROOM) {
+        // console.log( "room=> ", eventName )
+        if (!data.gameRoomId) {
+            console.log( "room id ", data.gameRoomId )
+            return next(new Error(MESSAGES.SOCKET.INVALID_GAMEROOM_ID));
         }
     }
-    else if (eventName === SOCKET_EVENTS.SEND_MESSAGE) {
-        if (!data.roomId || !data.message) {
-            return next(new Error(MESSAGES.SOCKET.INVALID_MESSAGE_PAYLOAD));
+    else if (eventName === SOCKET_EVENTS.VALID_MOVES_SELECTED_PLAYER) {
+        // console.log( "room=> ", eventName )
+        if (!data.gameRoomId || !data.selectedPosition ) {
+            console.log( "room id ", data )
+            return next(new Error(MESSAGES.SOCKET.INVALID_GAMEROOM_ID_OR_SELECTED_POSITION));
         }
     }
-    else if (eventName === SOCKET_EVENTS.SEND_GROUP_MESSAGE) {
-        if (!data.groupId || !data.message) {
-            return next(new Error(MESSAGES.SOCKET.INVALID_GROUP_MESSAGE_PAYLOAD));
-        }
-    }
-    else if (eventName === SOCKET_EVENTS.JOIN_GROUP) {
-        if (!data.groupId) {
-            return next(new Error(MESSAGES.SOCKET.INVALID_GROUP_ID));
-        }
-    }
-    console.log( "okoko " ) ;
+    
+    console.log( "successfully validated " ) ;
     next();
 };
 
