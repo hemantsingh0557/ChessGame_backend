@@ -74,4 +74,37 @@ module.exports = [
         auth : true , 
         handler: userController.getUserDetails,
     },
+    {
+        method: 'GET',
+        path: '/getOtherUserDetails/:otherUserId',
+        joiSchemaForSwagger: {
+            group: 'SERVER',
+            description: 'Route to get other user details',
+            model: 'UserModel',
+            params : {
+                otherUserId : Joi.string().required() ,
+            }
+        },
+        auth : false , 
+        handler: userController.getOtherUserDetails,
+    },
+    {
+        method: 'PUT',
+        path: '/changePassword',
+        joiSchemaForSwagger: {
+            group: 'SERVER',
+            description: 'Route to change password',
+            model: 'UserModel',
+            body :{
+                oldPassword: Joi.string().min(4).required() , // // match: [/(?=.*[a-zA-Z])(?=.*\d)(?=.*\W)/, 'Password must contain at least one letter, one number, and one special character']
+                newPassword: Joi.string().min(4).required() , // // match: [/(?=.*[a-zA-Z])(?=.*\d)(?=.*\W)/, 'Password must contain at least one letter, one number, and one special character']
+                confirmNewPassword : Joi.ref("newPassword") ,
+            },
+            headers: {
+                authorization: Joi.string().required()
+            }
+        },
+        auth : true , 
+        handler: userController.changePassword,
+    },
 ];
