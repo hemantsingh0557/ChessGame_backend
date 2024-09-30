@@ -24,6 +24,7 @@ CONSTANTS.GAME_STATUS = {
     ONGOING: "ONGOING",       
     COMPLETED: "COMPLETED",   
     ABANDONED: "ABANDONED",   
+    CHECK: "CHECK",   
     CHECKMATE: "CHECKMATE",   
     DRAW: "DRAW",             
     RESIGNED: "RESIGNED",     

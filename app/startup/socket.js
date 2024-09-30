@@ -119,7 +119,7 @@ socketConnection.connect = (io) => {
         });
         
         socket.on(SOCKET_EVENTS.MOVE_PIECE, async (data, callback) => {
-            const { gameRoomId , currentBoardState , fromPos , toPos } = data;
+            const { gameRoomId , currentBoardState , currentTurn , fromPos , toPos } = data;
             const boardState = currentBoardState;
             const chess = new Chess();
             chess.load(boardState);  
@@ -127,16 +127,33 @@ socketConnection.connect = (io) => {
             if (!moveResult) {
                 return callback({ success: false, message: MESSAGES.SOCKET.INVALID_MOVE });
             }
-            const currentTurn = chess.turn(); 
+            const realCurrentTurn = chess.turn(); 
+            if( currentTurn != realCurrentTurn ) {
+                return callback({ success : false , message : MESSAGES.SOCKET.INVALID_GAME_TURN })
+            }
             const nextTurn = currentTurn === 'w' ? 'b' : 'w';  
             const currentMove = `${fromPos}-${toPos}`;
+
+            let gameStatus = CONSTANTS.GAME_STATUS.ONGOING ;
+            if (chess.in_checkmate()) {
+                gameStatus = CONSTANTS.GAME_STATUS.CHECKMATE ;
+            } 
+            else if (chess.in_draw()) {
+                gameStatus = CONSTANTS.GAME_STATUS.DRAW;
+            } 
+            else if (chess.in_check()) {
+                gameStatus = CONSTANTS.GAME_STATUS.CHECK ;
+            }
+
+            // Create the response object
             const responseObject = { 
                 gameRoomId: gameRoomId,
                 boardState: chess.fen(),
                 currentTurn: currentTurn,
                 currentMove: currentMove,
                 nextTurn: nextTurn,
-            }
+                status: gameStatus,
+            };
             const createNewGameState = await gameStateService.createGameState(
                 responseObject
             );

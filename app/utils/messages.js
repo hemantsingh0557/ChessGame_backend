@@ -58,6 +58,7 @@ module.exports = {
         NO_MATCH_FOUND : "No players found. Please try again later." ,
         GAME_STATE_NOT_FOUND : "Game state not found." ,
         INVALID_MOVE : "Invalid move." ,
+        INVALID_GAME_TURN : "Invalid  move." ,
         MOVE_SUCCESS : "Move made successfully." ,
         INVALID_GAMEROOM_ID: 'INVALID_GAMEROOM_ID',
         INVALID_GAMEROOM_ID_OR_SELECTED_POSITION: 'INVALID_GAMEROOM_ID_OR_SELECTED_POSITION',
