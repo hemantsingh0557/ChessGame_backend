@@ -37,6 +37,7 @@ const startNodeserver = async () => {
     
     // await sequelize.sync({ force: true });
     await sequelize.sync({ alter: true });
+    require('./app/utils/task.js');
 
     return new Promise((resolve, reject) => {
         server.listen(SERVER.PORT, (err) => {
