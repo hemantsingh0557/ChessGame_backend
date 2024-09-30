@@ -19,24 +19,32 @@ socketConnection.connect = (io) => {
         // Middleware for validating socket events
         socket.use(commonFunctions.validateSocketEvent);
         const userId = socket.user.id ;
-        console.log( "userid" ,  userId )
+        // console.log( "userid" ,  userId )
         await userService.updateUser( { id : userId } , { isOnline : true } ) ;
 
+
+
+
         socket.on(SOCKET_EVENTS.START_GAME, async (callback) => {
-            console.log("Starting game..." , userId );
-            await waitingPlayerService.addPlayerToWaitingListInDb({ userId });
+            
+            await waitingPlayerService.addPlayerToWaitingListInDb({ userId, userSocketId: socket.id });
+        
             const startTime = Date.now();
-            const waitDuration = CONSTANTS.MATCH_DURATION;  
+            const waitDuration = CONSTANTS.MATCH_DURATION;
+            
             while (Date.now() - startTime < waitDuration) {
+                
                 const findAllPlayerWaitingForMatch = await waitingPlayerService.findAllPlayerWaitingForMatchFromDb({
                     where: {
-                        userId: { [Op.ne]: userId  }
+                        userId: { [Op.ne]: userId }
                     },
                     limit: 1,
                     order: [['createdAt', 'ASC']],
                 });
+        
                 if (findAllPlayerWaitingForMatch.length >= 1) {
                     const opponentPlayer = findAllPlayerWaitingForMatch[0];
+        
                     await waitingPlayerService.removePlayerFromWaitingListInDb({
                         where: {
                             [Op.or]: [
@@ -45,38 +53,54 @@ socketConnection.connect = (io) => {
                             ]
                         }
                     });
-                    socket.to(userId).emit(SOCKET_EVENTS.GAME_MATCHED, { opponents: opponentPlayer.userId });
-                    socket.to(opponentPlayer.userId).emit(SOCKET_EVENTS.GAME_MATCHED, { opponents: userId });
+        
+                    // Emit to User 1 (the current user)
+                    socket.emit(SOCKET_EVENTS.GAME_MATCHED, { opponents: opponentPlayer.userId });
+        
+                    // Emit to User 2 (the opponent)
+                    socket.to(opponentPlayer.userSocketId).emit(SOCKET_EVENTS.GAME_MATCHED, { opponents: userId });
+        
                     const gameRoom = await gameService.createGameRoom({
-                        userId1 : userId ,
-                        userId2 : opponentPlayer.userId ,
-                    }) ;
-                    const initialBoardState = new Chess().fen(); 
-                    const initialGameState = await gameStateService.createGameState(
-                        { 
-                            gameRoomId : gameRoom.id  ,
-                            boardState : initialBoardState 
-                        }
-                    ) ;
-                    const responseObejct = { 
-                        gameRoomId : gameRoom.id , 
-                        userId : userId ,
-                        opponentPlayerId: opponentPlayer.userId ,
-                        boardState : initialGameState.boardState,
-                        currentTurn : initialBoardState.currentTurn ,
+                        userId1: userId,
+                        userId2: opponentPlayer.userId,
+                    });
+        
+                    const initialBoardState = new Chess().fen();
+                    const initialGameState = await gameStateService.createGameState({
+                        gameRoomId: gameRoom.id,
+                        boardState: initialBoardState
+                    });
+        
+                    const responseObject = {
+                        gameRoomId: gameRoom.id,
+                        userId: userId,
+                        opponentPlayerId: opponentPlayer.userId,
+                        boardState: initialGameState.boardState,
+                        currentTurn: initialBoardState.currentTurn,
+                    };
+        
+                    if (typeof callback === 'function') {
+                        console.log(`Game matched successfully for User ${userId}`);
+                        return callback({ success: true, message: MESSAGES.SOCKET.MATCH_FOUND, data: responseObject });
                     }
-                    console.log( "responseObejct" ,  responseObejct ) ;
-                    if( typeof callback === 'function' ) return callback({ success: true, message: MESSAGES.SOCKET.MATCH_FOUND , data : responseObejct });
-                    console.log( "callback not funciton " ,  responseObejct ) ;
-                    return ;
+                    console.log("Callback not a function", responseObject);
+                    return;
                 }
+        
                 await new Promise(resolve => setTimeout(resolve, CONSTANTS.CHECK_INTERVAL));
             }
-            if( typeof callback === 'function' ) return callback({ success: false, message: MESSAGES.SOCKET.NO_MATCH_FOUND });
-            return ;
+        
+            if (typeof callback === 'function') {
+                console.log(`No opponent found for User ${userId} within the waiting duration.`);
+                return callback({ success: false, message: MESSAGES.SOCKET.NO_MATCH_FOUND });
+            }
+            return;
         });
         
         
+
+
+
 
 
         // socket.on(SOCKET_EVENTS.JOIN_GAME_ROOM, async (data, callback) => {
@@ -97,6 +121,7 @@ socketConnection.connect = (io) => {
         // });
         
         socket.on(SOCKET_EVENTS.VALID_MOVES, async (data, callback) => {
+            data = JSON.parse(data);
             const { gameRoomId , selectedPosition  } = data;
             const currentGameState = await gameStateService.getCurrentGameState({
                 where: { gameRoomId },  
@@ -119,29 +144,32 @@ socketConnection.connect = (io) => {
         });
         
         socket.on(SOCKET_EVENTS.MOVE_PIECE, async (data, callback) => {
+            data = JSON.parse(data);
             const { gameRoomId , currentBoardState , currentTurn , fromPos , toPos } = data;
             const boardState = currentBoardState;
             const chess = new Chess();
             chess.load(boardState);  
-            const moveResult = chess.move({ from: fromPos, to: toPos });
-            if (!moveResult) {
-                return callback({ success: false, message: MESSAGES.SOCKET.INVALID_MOVE });
-            }
             const realCurrentTurn = chess.turn(); 
+            console.log(realCurrentTurn ) ;
             if( currentTurn != realCurrentTurn ) {
                 return callback({ success : false , message : MESSAGES.SOCKET.INVALID_GAME_TURN })
+            }
+            const moveResult = chess.move({ from: fromPos, to: toPos });
+            console.log( moveResult ) ;
+            if (!moveResult) {
+                return callback({ success: false, message: MESSAGES.SOCKET.INVALID_MOVE });
             }
             const nextTurn = currentTurn === 'w' ? 'b' : 'w';  
             const currentMove = `${fromPos}-${toPos}`;
 
             let gameStatus = CONSTANTS.GAME_STATUS.ONGOING ;
-            if (chess.in_checkmate()) {
+            if (chess.isCheckmate()) {
                 gameStatus = CONSTANTS.GAME_STATUS.CHECKMATE ;
             } 
-            else if (chess.in_draw()) {
+            else if (chess.isDraw()) {
                 gameStatus = CONSTANTS.GAME_STATUS.DRAW;
             } 
-            else if (chess.in_check()) {
+            else if (chess.inCheck()) {
                 gameStatus = CONSTANTS.GAME_STATUS.CHECK ;
             }
 

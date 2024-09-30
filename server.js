@@ -29,6 +29,7 @@ const io = require('socket.io')(server, {
     },
 });
 
+
 /** Server is running here */
 const startNodeserver = async () => {
     await dbConnection();
@@ -46,6 +47,7 @@ const startNodeserver = async () => {
         });
     });
 };
+
 
 startNodeserver().then(() => {
     console.log('Node server running on', SERVER.URL);
