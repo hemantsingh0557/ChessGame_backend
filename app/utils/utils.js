@@ -12,6 +12,7 @@ const {SOCKET_EVENTS , MESSAGES } = require('./constants');
 const CONFIG = require(`../../config`);
 
 const { PINO, LIVE_LOGGER_ENABLE } = require('../../config');
+const socketEventsSchema = require('./socketEventsSchema');
 
 const PINO_CRED = { apiKey: PINO.API_KEY, sourceToken: PINO.API_SECRET };
 
@@ -22,47 +23,34 @@ const commonFunctions = {};
 
 
 
-
-
-commonFunctions.validateSocketEvent = (packet, next) => {
-    const eventName = packet[0]; 
-    const data = packet[1];
-    // const data = JSON.parse(packet[1]);
-    // packet[1] = data ;
-    // console.log("validate Received packet  :", packet );
-    console.log("validate Received data  :", data);
-    if (eventName === SOCKET_EVENTS.START_GAME) {
-        // console.log( "room=> ", eventName )
-        // if (!data.gameRoomId) {
-        //     console.log( "room id ", data.gameRoomId )
-        //     return next(new Error(MESSAGES.SOCKET.INVALID_GAMEROOM_ID));
-        // }
-    }
-    else if (eventName === SOCKET_EVENTS.JOIN_GAME_ROOM) {
-        // console.log( "room=> ", eventName )
-        if (!data.gameRoomId) {
-            console.log( "room id ", data.gameRoomId )
-            return next(new Error(MESSAGES.SOCKET.INVALID_GAMEROOM_ID));
+commonFunctions.validateSocketEvent = ([event, ...args], next) => {
+    console.log(`Event received: ${event}, Data received:`, args[0]);
+    const data = args[0] ? JSON.parse(args[0]) : {}; // Parse JSON string to object
+    args[0] = data; // Store parsed data in args[0]
+    let result;
+    try {
+        if (event === SOCKET_EVENTS.START_GAME) {
+            result = socketEventsSchema.startGame.validate({});
+        } 
+        else if (event === SOCKET_EVENTS.JOIN_GAME_ROOM) {
+            result = socketEventsSchema.joinGameRoom.validate(data);
+        } 
+        else if (event === SOCKET_EVENTS.VALID_MOVES) {
+            result = socketEventsSchema.validMoves.validate(data);
+        } 
+        else if (event === SOCKET_EVENTS.MOVE_PIECE) {
+            result = socketEventsSchema.movePiece.validate(data);
         }
-    }
-    else if (eventName === SOCKET_EVENTS.VALID_MOVES_SELECTED_PLAYER) {
-        // console.log( "room=> ", eventName )
-        if (!data.gameRoomId || !data.selectedPosition ) {
-            console.log( "room id ", data )
-            return next(new Error(MESSAGES.SOCKET.INVALID_GAMEROOM_ID_OR_SELECTED_POSITION));
+        if (result.error) {
+            console.log(`Validation Error:`, result.error.details[0].message);
+            return next(new Error(result.error.details[0].message));
         }
+        next(); 
+    } catch (error) {
+        console.log('Validation Error:', error);
+        next(new Error('Invalid event data'));
     }
-    
-    console.log( "successfully validated " ) ;
-    next();
 };
-
-
-
-
-
-
-
 
 
 
