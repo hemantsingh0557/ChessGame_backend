@@ -60,9 +60,10 @@ module.exports = {
         INVALID_GAME_TURN : "INVALID_GAME_TURN." ,
         INVALID_MOVE : "Invalid move." ,
         CANNOT_MOVE_IN_CHECK : "CANNOT_MOVE_IN_CHECK." ,
-        MOVE_SUCCESS : "Move made successfully." ,
+        MOVE_SUCCESS : "Move made successfully11111111." ,
         INVALID_GAMEROOM_ID: 'INVALID_GAMEROOM_ID',
-        INVALID_GAMEROOM_ID_OR_SELECTED_POSITION: 'INVALID_GAMEROOM_ID_OR_SELECTED_POSITION',
+        INVALID_VALID_MOVES_DATA: 'INVALID_VALID_MOVES_DATA',
+        INVALID_MOVE_PIECE_DATA: 'INVALID_MOVE_PIECE_DATA',
         ALREADY_IN_WAITING_LIST: 'User is already in the waiting list',
 
         SOCKET_IS_RUNNING_FINE: 'Socket is running fine',
