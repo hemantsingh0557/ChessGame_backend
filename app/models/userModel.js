@@ -52,6 +52,10 @@ const UserModel = sequelize.define('UserModel', {
         allowNull: false,
         validate: { notEmpty: true },
     },
+    userSocketId: {   
+        type: DataTypes.STRING,
+        allowNull: true,   
+    }
 }, 
 {
     timestamps: true,
