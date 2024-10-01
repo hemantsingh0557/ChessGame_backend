@@ -55,4 +55,3 @@ startNodeserver().then(() => {
     console.log('Error in starting server', err);
     // process.exit(1);
 });
-
