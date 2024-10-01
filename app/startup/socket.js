@@ -20,7 +20,7 @@ socketConnection.connect = (io) => {
         socket.use(commonFunctions.validateSocketEvent);
         const userId = socket.user.id ;
         // console.log( "userid" ,  userId )
-        await userService.updateUser( { id : userId } , { isOnline : true } ) ;
+        await userService.updateUser( { id : userId } , { isOnline : true , userSocketId : socket.id } ) ;
 
 
 
@@ -117,28 +117,22 @@ socketConnection.connect = (io) => {
             return;
         });
         
-        
 
-
-
-
-
-        // socket.on(SOCKET_EVENTS.JOIN_GAME_ROOM, async (data, callback) => {
-        //     // data = JSON.parse(data);
-        //     const { gameRoomId } = data;
-        //     const roomExists = await gameService.checkIfRoomExists({ where : { id : gameRoomId }});  
-        //     if (!roomExists) {
-        //         return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
-        //     }
-        //     const isAlreadyInRoom = socket.rooms.has(gameRoomId);  
-        //     if (isAlreadyInRoom) {
-        //         return callback({ success: false, message: MESSAGES.SOCKET.ALREADY_IN_ROOM });
-        //     }
-        //     socket.join(gameRoomId);
-        //     console.log(`User ${userId} joined game room ${gameRoomId}`);
-        //     socket.to(gameRoomId).emit(SOCKET_EVENTS.USER_JOINED, { userId });
-        //     callback({ success: true, message: MESSAGES.SOCKET.ROOM_JOINED });
-        // });
+        socket.on(SOCKET_EVENTS.JOIN_GAME_ROOM, async (data, callback) => {
+            data = JSON.parse(data);
+            const { gameRoomId } = data;
+            const roomExists = await gameService.checkIfRoomExists({ where : { id : gameRoomId }});  
+            if (!roomExists) {
+                return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
+            }
+            const isAlreadyInRoom = socket.rooms.has(gameRoomId);  
+            if (isAlreadyInRoom) {
+                return callback({ success: false, message: MESSAGES.SOCKET.ALREADY_IN_ROOM });
+            }
+            socket.join(gameRoomId);
+            console.log(`User ${userId} joined ggggggggggggggggame room ${gameRoomId}`);
+            callback({ success: true, message: MESSAGES.SOCKET.ROOM_JOINED });
+        });
         
 
 
@@ -171,13 +165,21 @@ socketConnection.connect = (io) => {
             callback({ success: true, validMoves });
         });
 
+
+
+
+
         socket.on(SOCKET_EVENTS.MOVE_PIECE, async (data, callback) => {
             data = JSON.parse(data);
+            console.log( data) ;
             const { gameRoomId, fromPos, toPos, orientation } = data;
             const checkGameRoomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
             if (!checkGameRoomExists) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
             }
+            const { userId1, userId2 } = checkGameRoomExists;
+            const opponentId = (userId1 === userId) ? userId2 : userId1;
+            const opponent = await userService.findOne({ id : opponentId  }) ;
             const gameState = await gameStateService.getCurrentGameState({
                 where: { gameRoomId },
                 order: [['createdAt', 'DESC']]  
@@ -240,14 +242,21 @@ socketConnection.connect = (io) => {
                 status: gameStatus,
             };
             await gameStateService.createGameState(responseObject);
-            if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
-                socket.to(socket.id).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
-                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
-            } 
-            else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING) {
-                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
-            }
-            callback({ success: true, message: MESSAGES.SOCKET.MOVE_SUCCESS, responseObject });
+            // if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
+            //     socket.to(socket.id).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
+            //     socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
+            // } 
+            // else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING) {
+            //     socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
+            // }
+           
+            console.log( "opponetn => " , opponentId , opponent.userSocketId ) ;
+            socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
+            socket.emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
+            // socket.to(socket.id).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, responseObject})
+            // socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, responseObject})
+
+            callback({ success: true, message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject });
         });
         
         
