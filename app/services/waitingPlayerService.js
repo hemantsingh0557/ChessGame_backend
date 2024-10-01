@@ -9,6 +9,8 @@ const { WaitingPlayerModel } = require("../models");
 const waitingPlayerService = {};
 
 
+waitingPlayerService.findOne = async (payload) => await WaitingPlayerModel.findOne(payload);
+
 waitingPlayerService.addPlayerToWaitingListInDb = async (payload) => await WaitingPlayerModel.create(payload);
 
 
