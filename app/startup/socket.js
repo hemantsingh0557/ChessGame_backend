@@ -31,7 +31,11 @@ socketConnection.connect = (io) => {
                 where: { userId: userId }
             });
             if (isAlreadyInList) {
-                callback({ success: false, message: MESSAGES.SOCKET.ALREADY_IN_WAITING_LIST });
+                console.log(`already in waitnign lsit.`);
+                if (typeof callback === 'function') {
+                    return callback({ success: false, message: MESSAGES.SOCKET.ALREADY_IN_WAITING_LIST });
+                }
+                return ;
             } 
             else {
                 await waitingPlayerService.addPlayerToWaitingListInDb({ userId, userSocketId: socket.id });
@@ -106,6 +110,7 @@ socketConnection.connect = (io) => {
                         return callback({ success: true, message: MESSAGES.SOCKET.MATCH_FOUND });
                     }
                     console.log("Callback not a function", userResponseObject);
+                    console.log("Callback not a function", opponentResponseObject);
                     return;
                 }
                 await new Promise(resolve => setTimeout(resolve, CONSTANTS.CHECK_INTERVAL));

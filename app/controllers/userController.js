@@ -32,7 +32,6 @@ userController.userSignup = async (payload) => {
         age  , 
         password : hashedPassword , 
     });
-    
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email, username}) ; 
     return createSuccessResponse( CONSTANTS.MESSAGES.SIGNEDUP_SUCCESSFULLY , { token : jwtToken }); 
 };

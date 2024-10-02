@@ -25,12 +25,17 @@ const commonFunctions = {};
 
 commonFunctions.validateSocketEvent = ([event, ...args], next) => {
     console.log(`Event received: ${event}, Data received:`, args[0]);
-    const data = args[0] ? JSON.parse(args[0]) : {}; // Parse JSON string to object
-    args[0] = data; // Store parsed data in args[0]
+    let data = {} ;
+    if (event !== SOCKET_EVENTS.START_GAME) {
+        console.log( "eventname  " , event  ) ;
+        data = args[0] ? JSON.parse(args[0]) : {}; 
+        args[0] = data; // Store parsed data in args[0]
+        console.log( data , "okkoko ", args[0] ) ;
+    }
     let result;
     try {
         if (event === SOCKET_EVENTS.START_GAME) {
-            result = socketEventsSchema.startGame.validate({});
+            result = socketEventsSchema.startGame.validate(data);
         } 
         else if (event === SOCKET_EVENTS.JOIN_GAME_ROOM) {
             result = socketEventsSchema.joinGameRoom.validate(data);
@@ -45,6 +50,7 @@ commonFunctions.validateSocketEvent = ([event, ...args], next) => {
             console.log(`Validation Error:`, result.error.details[0].message);
             return next(new Error(result.error.details[0].message));
         }
+        console.log( "validate sucessfully" ) ;
         next(); 
     } catch (error) {
         console.log('Validation Error:', error);
