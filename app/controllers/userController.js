@@ -1,7 +1,7 @@
 'use strict';
 
 const { UserModel } = require('../models');
-const { userService } = require('../services');
+const { userService, sessionService } = require('../services');
 const { createSuccessResponse, createErrorResponse } = require('../helpers');
 const CONSTANTS = require('../utils/constants');
 const bcrypt = require('bcrypt');
@@ -33,25 +33,31 @@ userController.userSignup = async (payload) => {
         password : hashedPassword , 
     });
     const jwtToken = commonFunctions.encryptJwt({userId : user.id , email, username}) ; 
+    await sessionService.createSession( { userId : user.id , token : jwtToken} ) ;
     return createSuccessResponse( CONSTANTS.MESSAGES.SIGNEDUP_SUCCESSFULLY , { token : jwtToken }); 
 };
 
 
 
 userController.userSignin = async (payload) => {
-    const { email, password } = payload ; 
+    const { email, password } = payload; 
     const user = await userService.findOne({ email });
-    if(!user) {
-        return createErrorResponse( NO_USER_FOUND , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
+    if (!user) {
+        return createErrorResponse(CONSTANTS.MESSAGES.NO_USER_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
-    const isMatch = commonFunctions.compareHash(password , user.password) ;
-    if(!isMatch) {
-        return createErrorResponse( INVALID_PASSWORD , CONSTANTS.ERROR_TYPES.BAD_REQUEST);
+    const isMatch = commonFunctions.compareHash(password, user.password);
+    if (!isMatch) {
+        return createErrorResponse(CONSTANTS.MESSAGES.INVALID_PASSWORD, CONSTANTS.ERROR_TYPES.BAD_REQUEST);
     }
-    await userService.updateUser( { id : user.id } , { isOnline : true} ) ;
-    const jwtToken = commonFunctions.encryptJwt({userId : user.id , email : user.email, username: user.username}) ;
-    return createSuccessResponse( CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY , { token : jwtToken }); 
+    const isUserSessionExists = await sessionService.findSession({ where: { userId: user.id } });
+    if (isUserSessionExists) {
+        return createErrorResponse(CONSTANTS.MESSAGES.SESSION_ALREADY_EXISTS, CONSTANTS.ERROR_TYPES.ALREADY_EXISTS);
+    }
+    await userService.updateUser({ id: user.id }, { isOnline: true });
+    const jwtToken = commonFunctions.encryptJwt({ userId: user.id, email: user.email, username: user.username });
+    return createSuccessResponse(CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY, { token: jwtToken });
 };
+
 
 
 userController.updateUser = async (payload) => {

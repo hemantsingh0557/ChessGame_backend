@@ -5,6 +5,7 @@ module.exports = {
     LOGGED_IN_SUCCESSFULLY: 'Logged in successfully.',
     SUCCESS: 'Success.',
     NO_USER_FOUND: 'User not found.',
+    SESSION_ALREADY_EXISTS: 'SESSION_ALREADY_EXISTS.',
 
     
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
