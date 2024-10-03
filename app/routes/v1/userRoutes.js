@@ -129,4 +129,19 @@ module.exports = [
         auth : false , 
         handler: userController.getAllUsernamesAndEmails,
     },
+    {
+        method: 'DELETE',   
+        path: '/userLogout',
+        joiSchemaForSwagger: {
+            group: 'User',
+            description: 'Route to log out user by deleting session',
+            model: 'userLogout',
+            headers: {
+                authorization: Joi.string().required()   
+            }
+        },
+        auth: true,  
+        handler: userController.userLogout,
+    }
+    
 ];
