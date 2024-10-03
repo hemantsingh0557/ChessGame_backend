@@ -9,6 +9,7 @@ const { MESSAGES, ERROR_TYPES } = require('../utils/constants');
 const CONSTANTS = require('../utils/constants');
 const commonFunctions = require('../utils/utils');
 const userService = require('./userService');
+const sessionService = require('./sessionService');
 
 
 const authService = {};
@@ -34,6 +35,10 @@ authService.userValidate = () => async (req, res, next) => {
         if (!user) {
             return res.status(401).json(createErrorResponse(MESSAGES.UNAUTHORIZED, ERROR_TYPES.UNAUTHORIZED));
         }
+        const session = await sessionService.findSession({ where: { userId, token } });
+        if (!session) {
+            return res.status(401).json(createErrorResponse(MESSAGES.UNAUTHORIZED, ERROR_TYPES.UNAUTHORIZED));
+        }
         req.userId = userId;
         req.user = user;
         next();
@@ -44,33 +49,41 @@ authService.userValidate = () => async (req, res, next) => {
 };
 
 
-
 authService.socketAuthentication = async (socket, next) => {
     try {
-        // console.log(  " okoko " , socket.handshake.query.authorization )
-        const decodedToken = decryptJwt(socket.handshake.query.authorization.split(" ")[1]);
-        
+        const token = socket.handshake.query.authorization.split(" ")[1];  
+        const decodedToken = decryptJwt(token);
         if (!decodedToken || !decodedToken.userId) {
             return next({ success: false, message: MESSAGES.UNAUTHORIZED });
         }
-        const user = await userService.findOne({id: decodedToken.userId});
+        const { userId } = decodedToken;
+        const user = await userService.findOne({ id: userId });
         if (!user) {
+            return next({ success: false, message: MESSAGES.UNAUTHORIZED });
+        }
+        const session = await sessionService.findSession({ where: { userId : user.id , token } });
+        if (!session) {
             return next({ success: false, message: MESSAGES.UNAUTHORIZED });
         }
         socket.user = user;
 
-        // const groupData = await dbService.find(conversationRoomModel, { 'members.userId': { $eq: socket.userId } });
-        // if (!groupData) {
-        //     return ({ success: false, message: MESSAGES.NOT_FOUND });
-        // }
-        // for (let i = 0; i  < groupData.length; i++) {
-        //     socket.join(groupData[i].uniqueCode);
-        // }
-        return next();
+        /*
+        const groupData = await dbService.find(conversationRoomModel, { 'members.userId': { $eq: userId } });
+        if (!groupData) {
+            return next({ success: false, message: MESSAGES.NOT_FOUND });
+        }
+        for (let i = 0; i < groupData.length; i++) {
+            socket.join(groupData[i].uniqueCode);
+        }
+        */
+        
+        return next(); // Proceed to the next middleware
     } 
     catch (err) {
+        console.error('Error in socket authentication:', err); // Log the error for debugging
         return next({ success: false, message: MESSAGES.SOMETHING_WENT_WRONG });
     }
 };
+
 
 module.exports = authService;
