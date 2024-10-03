@@ -2,6 +2,7 @@
 
 const { Joi } = require('../../utils/joiUtils');
 const { userController } = require('../../controllers');
+const { query } = require('express');
 
 module.exports = [
     {
@@ -117,6 +118,12 @@ module.exports = [
             group: 'User',
             description: 'Route to get all usernames And Emails',
             model: 'getAllUsernamesAndEmails',
+            query :{
+                username : Joi.string(),
+                isOnline : Joi.boolean() ,
+                skip : Joi.number().default(0) ,
+                limit : Joi.number().default(10) ,
+            }      
            
         },
         auth : false , 
