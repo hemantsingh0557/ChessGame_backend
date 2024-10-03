@@ -70,6 +70,8 @@ socketConnection.connect = (io) => {
         
                     const chess = new Chess();
                     const initialBoardState = chess.fen(); // Get the FEN string
+                    // const initialBoardState = "1k6/5R2/R7/1pP1p2p/8/4K3/6PP/8 b - - 0 41"; // Get the FEN string
+                    // chess.load(initialBoardState) ;
                     const currentTurn = chess.turn();
                     console.log( "initialBoardState" , initialBoardState )
                     const initialGameState = await gameStateService.createGameState({
@@ -97,7 +99,6 @@ socketConnection.connect = (io) => {
                             username : userDetails.username ,
                             imageUrl : userDetails.imageUrl
                         },
-                        // boardState: "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1" ,
                         boardState: initialGameState.boardState,
                         currentTurn,
                     };
@@ -121,6 +122,7 @@ socketConnection.connect = (io) => {
             }
             return;
         });
+
         
 
         socket.on(SOCKET_EVENTS.JOIN_GAME_ROOM, async (data, callback) => {
@@ -138,7 +140,7 @@ socketConnection.connect = (io) => {
             console.log(`User ${userId} joined ggggggggggggggggame room ${gameRoomId}`);
             callback({ success: true, message: MESSAGES.SOCKET.ROOM_JOINED });
         });
-        
+
 
 
         socket.on(SOCKET_EVENTS.VALID_MOVES, async (data, callback) => {
@@ -167,10 +169,8 @@ socketConnection.connect = (io) => {
                 square: selectedPosition,  
                 verbose: true  
             });
-            callback({ success: true, validMoves });
+            callback({ success: true, data : validMoves });
         });
-
-
 
 
 
@@ -205,13 +205,16 @@ socketConnection.connect = (io) => {
             if (!isValidMove) {
                 return callback({ success: false, message: MESSAGES.SOCKET.INVALID_MOVE });
             }
+            
+            
             const moveResult = chess.move({ from: fromPos, to: toPos });
-            if (chess.inCheck()) {
-                chess.undo();
-                return callback({ success: false, message: MESSAGES.SOCKET.CANNOT_MOVE_IN_CHECK });
-            }
             let gameStatus = CONSTANTS.GAME_STATUS.ONGOING;
             let messageForCurrentUser, messageForOpponent;
+            if (chess.inCheck()) {
+                gameStatus = CONSTANTS.GAME_STATUS.CHECK;
+                messageForCurrentUser = MESSAGES.SOCKET.GETTING_CHECK;
+                messageForOpponent = MESSAGES.SOCKET.GETTING_CHECK;
+            }
             if (chess.isCheckmate()) {
                 gameStatus = CONSTANTS.GAME_STATUS.CHECKMATE;
                 messageForCurrentUser = MESSAGES.SOCKET.CHECKMATE_WIN;
@@ -241,23 +244,29 @@ socketConnection.connect = (io) => {
             const responseObject = { 
                 gameRoomId: gameRoomId,
                 boardState: chess.fen(),
+                // boardState: "1k6/5R2/R7/1pP1p2p/8/4K3/6PP/8 b - - 0 41",
                 currentTurn: currentTurn,
                 currentMove: currentMove,
                 nextTurn: nextTurn,
                 status: gameStatus,
             };
             await gameStateService.createGameState(responseObject);
-            // if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
-            //     socket.to(socket.id).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
-            //     socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
-            // } 
-            // else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING) {
-            //     socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
+            socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
+            if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
+                socket.emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
+                socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
+            } 
+            else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING) {
+                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
+            }
+            // else if ( gameStatus === CONSTANTS.GAME_STATUS.ONGOING )
+            // {
+            //     socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             // }
            
-            console.log( "opponetn => " , opponentId , opponent.userSocketId ) ;
-            socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
-            socket.emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
+            // console.log( "opponetn => " , opponentId , opponent.userSocketId ) ;
+            
+            // socket.emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             // socket.to(socket.id).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, responseObject})
             // socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, responseObject})
 

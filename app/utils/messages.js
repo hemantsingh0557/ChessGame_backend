@@ -6,6 +6,8 @@ module.exports = {
     SUCCESS: 'Success.',
     NO_USER_FOUND: 'User not found.',
     SESSION_ALREADY_EXISTS: 'SESSION_ALREADY_EXISTS.',
+    NO_SESSION_FOUND: 'NO_SESSION_FOUND.',
+    LOGGED_OUT_SUCCESSFULLY: 'Logged out successfully.',
 
     
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
@@ -30,7 +32,6 @@ module.exports = {
     SAME_CURRENT_AND_OLD_PASSWORD: 'Current password and old password cannot be same.',
     NOT_FOUND: 'Data not found.',
     ACCOUNT_NOT_ACTIVE: "This account is not active anymore",
-    LOGGED_OUT_SUCCESSFULLY: 'Logged out successfully.',
     PROFILE_UPDATE_SUCCESSFULLY: 'Profile updated successfully.',
     REFERRAL_CODE_IS_VALID: "This referral code is valid.",
     REFERRAL_CODE_IS_INVALID: "This referral code is invalid.",
@@ -66,6 +67,13 @@ module.exports = {
         INVALID_VALID_MOVES_DATA: 'INVALID_VALID_MOVES_DATA',
         INVALID_MOVE_PIECE_DATA: 'INVALID_MOVE_PIECE_DATA',
         ALREADY_IN_WAITING_LIST: 'User is already in the waiting list',
+        GETTING_CHECK: 'GETTING_CHECK',
+        CHECKMATE_WIN: 'CHECKMATE_WIN',
+        CHECKMATE_LOSS: 'CHECKMATE_LOSS',
+        DRAW: 'DRAW',
+        STALEMATE: 'STALEMATE',
+        INSUFFICIENT_MATERIAL: 'INSUFFICIENT_MATERIAL',
+        THREEFOLD_REPETITION: 'THREEFOLD_REPETITION',
 
         SOCKET_IS_RUNNING_FINE: 'Socket is running fine',
         MESSAGE_SENT: 'Message sent successfully',
