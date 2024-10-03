@@ -142,6 +142,14 @@ userController.changePassword = async (payload) => {
     return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS  );
 };
 
+userController.getAllUsernamesAndEmails = async() => {
+    const getAll = await userService.findAll({ attributes: ['username', 'email'] }) ;
+    if( !getAll ) {
+        return createErrorResponse( CONSTANTS.MESSAGES.NO_USER_FOUND , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND ) ;
+    }
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS , getAll ) ;
+}
+
 
 
 module.exports = userController;
