@@ -12,4 +12,5 @@ module.exports = {
     gameService: require('./gameService.js'),
     gameStateService: require('./gameStateService.js'),
     waitingPlayerService: require('./waitingPlayerService.js'),
+    sessionService: require('./sessionService.js'),
 };
