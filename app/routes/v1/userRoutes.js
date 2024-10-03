@@ -106,11 +106,20 @@ module.exports = [
                 newPassword: Joi.string().min(4).required() , // // match: [/(?=.*[a-zA-Z])(?=.*\d)(?=.*\W)/, 'Password must contain at least one letter, one number, and one special character']
                 confirmNewPassword : Joi.ref("newPassword") ,
             },
-            headers: {
-                authorization: Joi.string().required()
-            }
         },
         auth : true , 
         handler: userController.changePassword,
+    },
+    {
+        method: 'GET',
+        path: '/getAllUsernamesAndEmails',
+        joiSchemaForSwagger: {
+            group: 'User',
+            description: 'Route to get all usernames And Emails',
+            model: 'getAllUsernamesAndEmails',
+           
+        },
+        auth : false , 
+        handler: userController.getAllUsernamesAndEmails,
     },
 ];
