@@ -55,6 +55,7 @@ userController.userSignin = async (payload) => {
     }
     // await userService.updateUser({ id: user.id }, { isOnline: true });
     const jwtToken = commonFunctions.encryptJwt({ userId: user.id, email: user.email, username: user.username });
+    await sessionService.createSession( { userId : user.id , token : jwtToken} ) ;
     return createSuccessResponse(CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY, { token: jwtToken });
 };
 
@@ -166,6 +167,18 @@ userController.getAllUsernamesAndEmails = async (payload) => {
     }
     return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS, getAll);
 }
+
+
+userController.userLogout = async (payload) => {
+    const { user } = payload ; 
+    // const isSessionExists = await sessionService.findSession({ where: { userId : user.id } });
+    // if (!isSessionExists) {
+    //     return createErrorResponse(CONSTANTS.MESSAGES.NO_SESSION_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
+    // }
+    await sessionService.deleteSession({ where: { userId : user.id } });
+    return createSuccessResponse(CONSTANTS.MESSAGES.LOGGED_OUT_SUCCESSFULLY);
+};
+
 
 
 module.exports = userController;
