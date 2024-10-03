@@ -53,7 +53,7 @@ userController.userSignin = async (payload) => {
     if (isUserSessionExists) {
         return createErrorResponse(CONSTANTS.MESSAGES.SESSION_ALREADY_EXISTS, CONSTANTS.ERROR_TYPES.ALREADY_EXISTS);
     }
-    await userService.updateUser({ id: user.id }, { isOnline: true });
+    // await userService.updateUser({ id: user.id }, { isOnline: true });
     const jwtToken = commonFunctions.encryptJwt({ userId: user.id, email: user.email, username: user.username });
     return createSuccessResponse(CONSTANTS.MESSAGES.LOGGED_IN_SUCCESSFULLY, { token: jwtToken });
 };
