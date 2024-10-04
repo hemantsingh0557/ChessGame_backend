@@ -37,7 +37,7 @@ authService.userValidate = () => async (req, res, next) => {
         }
         const session = await sessionService.findSession({ where: { userId, token } });
         if (!session) {
-            return res.status(401).json(createErrorResponse(MESSAGES.UNAUTHORIZED, ERROR_TYPES.UNAUTHORIZED));
+            return res.status(401).json(createErrorResponse(MESSAGES.SESSION_EXPIRED, ERROR_TYPES.UNAUTHORIZED));
         }
         req.userId = userId;
         req.user = user;
@@ -59,11 +59,11 @@ authService.socketAuthentication = async (socket, next) => {
         const { userId } = decodedToken;
         const user = await userService.findOne({ id: userId });
         if (!user) {
-            return next({ success: false, message: MESSAGES.UNAUTHORIZED });
+            return next({ success: false, message: MESSAGES.NO_USER_FOUND });
         }
         const session = await sessionService.findSession({ where: { userId : user.id , token } });
         if (!session) {
-            return next({ success: false, message: MESSAGES.UNAUTHORIZED });
+            return next({ success: false, message: MESSAGES.SESSION_EXPIRED });
         }
         socket.user = user;
 
