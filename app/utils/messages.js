@@ -8,6 +8,8 @@ module.exports = {
     SESSION_ALREADY_EXISTS: 'SESSION_ALREADY_EXISTS.',
     NO_SESSION_FOUND: 'NO_SESSION_FOUND.',
     LOGGED_OUT_SUCCESSFULLY: 'Logged out successfully.',
+    UNAUTHORIZED: 'Unauthorized access!',
+    SESSION_EXPIRED: 'SESSION_EXPIRED!',
 
     
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
@@ -21,7 +23,6 @@ module.exports = {
     PASSWORD_CHANGED: "Password changed successfully.",
     SOMETHING_WENT_WRONG: 'Something went wrong.',
     INTERNAL_SERVER_ERROR: 'Internal server error!',
-    UNAUTHORIZED: 'Unauthorized access!',
     FORBIDDEN: 'Unrestricted access!',
     USER_ALREADY_EXISTS: 'A user with this email or wallet address already exists.',
     EMAIL_ALREADY_EXISTS: 'Email already exists.',
@@ -74,6 +75,8 @@ module.exports = {
         STALEMATE: 'STALEMATE',
         INSUFFICIENT_MATERIAL: 'INSUFFICIENT_MATERIAL',
         THREEFOLD_REPETITION: 'THREEFOLD_REPETITION',
+        THREEFOLD_REPETITION: 'THREEFOLD_REPETITION',
+        PAWN_PROMOTION_MOVE: 'PAWN_PROMOTION_MOVE',
 
         SOCKET_IS_RUNNING_FINE: 'Socket is running fine',
         MESSAGE_SENT: 'Message sent successfully',
