@@ -1,7 +1,7 @@
 'use strict';
 
 const { UserModel } = require('../models');
-const { userService, sessionService } = require('../services');
+const { userService, sessionService, waitingPlayerService } = require('../services');
 const { createSuccessResponse, createErrorResponse } = require('../helpers');
 const CONSTANTS = require('../utils/constants');
 const bcrypt = require('bcrypt');
@@ -176,6 +176,7 @@ userController.userLogout = async (payload) => {
     //     return createErrorResponse(CONSTANTS.MESSAGES.NO_SESSION_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     // }
     await sessionService.deleteSession({ where: { userId : user.id } });
+    await waitingPlayerService.removePlayerFromWaitingListInDb({ where: { userId : user.id } }) ;
     return createSuccessResponse(CONSTANTS.MESSAGES.LOGGED_OUT_SUCCESSFULLY);
 };
 
