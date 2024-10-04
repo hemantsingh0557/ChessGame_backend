@@ -13,6 +13,7 @@ const CONFIG = require(`../../config`);
 
 const { PINO, LIVE_LOGGER_ENABLE } = require('../../config');
 const socketEventsSchema = require('./socketEventsSchema');
+const messages = require('./messages');
 
 const PINO_CRED = { apiKey: PINO.API_KEY, sourceToken: PINO.API_SECRET };
 
@@ -48,13 +49,17 @@ commonFunctions.validateSocketEvent = ([event, ...args], next) => {
         }
         if (result.error) {
             console.log(`Validation Error:`, result.error.details[0].message);
-            return next(new Error(result.error.details[0].message));
+            throw new Error(result.error.details[0].message);
         }
         console.log( "validate sucessfully" ) ;
         next(); 
     } catch (error) {
         console.log('Validation Error:', error);
-        next(new Error('Invalid event data'));
+        if(typeof args[0] === 'function')
+            args[0]({success: false, message: error.error.message})
+        else if(typeof args[1] === 'function')
+            args[1]({success: false, message: error.error.message})
+        // next(new Error('Invalid event data'));
     }
 };
 
