@@ -180,7 +180,6 @@ socketConnection.connect = (io) => {
             data = JSON.parse(data);
             console.log( data) ;
             const { gameRoomId, fromPos, toPos, orientation , promotedPiece } = data;
-            // promotedPiece = promotedPiece.toLowerCase();
             const checkGameRoomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
             if (!checkGameRoomExists) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
@@ -201,6 +200,8 @@ socketConnection.connect = (io) => {
             chess.load(boardState);
             const currentTurn = chess.turn();
             const nextTurn = currentTurn === 'w' ? 'b' : 'w';
+            console.log( "current trun " , orientation , " " ,  currentTurn , " " , nextTurn ) ;
+            console.log( "Data ===> " , data ) ;
             if (orientation !== currentTurn) {
                 return callback({ success: false, message: MESSAGES.SOCKET.INVALID_GAME_TURN });
             }
@@ -212,13 +213,13 @@ socketConnection.connect = (io) => {
             }
             // console.log( "promotedPiece" , promotedPiece ) ;
             if(!promotedPiece && findValidMove[0].flags.includes('p') ) { // for promotion moves 
-                console.log( "promotedPiece => " , data ) ;
+                console.log( "promotedPiece ====>    " , data ) ;
                 socket.emit(SOCKET_EVENTS.PROMOTION_MOVE , { message : MESSAGES.SOCKET.PAWN_PROMOTION_MOVE , data : data } )
                 return callback({ success: true, message: MESSAGES.SOCKET.PAWN_PROMOTION_MOVE , data : findValidMove });
             }
             if( findValidMove[0].flags.includes('e') ) { // for en passant move
                 const capturedPawnPosition = `${toPos.charAt(0)}${fromPos.charAt(1)}` ;
-                console.log( "PAWN_EN_PASSANT_MOVE" , fromPos , " " , toPos ,  " " , capturedPawnPosition ) ;
+                console.log( "PAWN_EN_PASSANT_MOVE   " , fromPos , " " , toPos ,  " " , capturedPawnPosition ) ;
                 socket.emit(SOCKET_EVENTS.EN_PASSANT_MOVE , { message : MESSAGES.SOCKET.PAWN_EN_PASSANT_MOVE , data : capturedPawnPosition } )
             }
             if (findValidMove[0].flags.includes('k')) { // King's Side Castling move
@@ -230,7 +231,7 @@ socketConnection.connect = (io) => {
                     rookFromPos : rookFrom ,
                     rookToPos : rookTo ,
                 }
-                console.log("King's Side Castling move", updatedPosition);
+                console.log("King's Side Castling move   ", updatedPosition);
                 socket.emit(SOCKET_EVENTS.CASTLING_MOVE, { message: MESSAGES.SOCKET.KINGS_SIDE_CASTLING, data: updatedPosition });
             } 
             if (findValidMove[0].flags.includes('q')) { // Queen's Side Castling move
@@ -242,19 +243,17 @@ socketConnection.connect = (io) => {
                     rookFromPos : rookFrom ,
                     rookToPos : rookTo ,
                 }
-                console.log("Queen's Side Castling move", updatedPosition);
+                console.log("Queen's Side Castling move   ", updatedPosition);
                 socket.emit(SOCKET_EVENTS.CASTLING_MOVE, {  message: MESSAGES.SOCKET.QUEENS_SIDE_CASTLING, data : updatedPosition });
             }
-            
-            
             // console.log( "promotedPiece111111" , promotedPiece ) ;
             const moveResult = chess.move({ from: fromPos, to: toPos , promotion : promotedPiece });
-            console.log( "moveResult ====> " , moveResult ) ;
+            console.log( "moveResult ====>    " , moveResult ) ;
             let gameStatus = CONSTANTS.GAME_STATUS.ONGOING ; 
             let messageForCurrentUser, messageForOpponent ;
             if (chess.inCheck()) {
                 gameStatus = CONSTANTS.GAME_STATUS.CHECK;
-                         messageForCurrentUser = MESSAGES.SOCKET.GETTING_CHECK;
+                messageForCurrentUser = MESSAGES.SOCKET.GETTING_CHECK;
                 messageForOpponent = MESSAGES.SOCKET.GETTING_CHECK;
             }
             if (chess.isCheckmate()) {
@@ -291,15 +290,19 @@ socketConnection.connect = (io) => {
                 currentMove: currentMove,
                 nextTurn: nextTurn,
                 status: gameStatus,
+                promotedPiece
             };
             await gameStateService.createGameState(responseObject);
             socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
-                socket.emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
+                socket.emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
                 socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
             } 
-            else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING) {
-                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForCurrentUser });
+            else if ( gameStatus === CONSTANTS.GAME_STATUS.CHECK ) {
+                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_CHECK, { success : true , kingPos: , gameStatus: gameStatus, message: messageForCurrentUser });
+            }
+            else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING ) {
+                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
             }
             // else if ( gameStatus === CONSTANTS.GAME_STATUS.ONGOING )
             // {
