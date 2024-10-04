@@ -130,7 +130,7 @@ module.exports = [
         handler: userController.getAllUsernamesAndEmails,
     },
     {
-        method: 'DELETE',   
+        method: 'POST',   
         path: '/userLogout',
         joiSchemaForSwagger: {
             group: 'User',
