@@ -157,6 +157,7 @@ socketConnection.connect = (io) => {
             if (!gameState) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_STATE_NOT_FOUND });
             }
+            // const boardState = '1k6/4P3/8/8/8/8/8/4K3 w - - 0 1';
             const boardState = gameState.boardState
             const chess = new Chess();
             chess.load(boardState);  
@@ -169,6 +170,7 @@ socketConnection.connect = (io) => {
                 square: selectedPosition,  
                 verbose: true  
             });
+            console.log(validMoves ) ;
             callback({ success: true, data : validMoves });
         });
 
@@ -177,7 +179,7 @@ socketConnection.connect = (io) => {
         socket.on(SOCKET_EVENTS.MOVE_PIECE, async (data, callback) => {
             data = JSON.parse(data);
             console.log( data) ;
-            const { gameRoomId, fromPos, toPos, orientation } = data;
+            const { gameRoomId, fromPos, toPos, orientation , promotedPiece } = data;
             const checkGameRoomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
             if (!checkGameRoomExists) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
@@ -192,6 +194,7 @@ socketConnection.connect = (io) => {
             if (!gameState) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_STATE_NOT_FOUND });
             }
+            // const boardState = '1k6/4P3/8/8/8/8/8/4K3 w - - 0 1';
             const boardState = gameState.boardState
             const chess = new Chess();
             chess.load(boardState);
@@ -201,18 +204,23 @@ socketConnection.connect = (io) => {
                 return callback({ success: false, message: MESSAGES.SOCKET.INVALID_GAME_TURN });
             }
             const legalMoves = chess.moves({ square: fromPos, verbose: true });
-            const isValidMove = legalMoves.some(move => move.from === fromPos && move.to === toPos);
-            if (!isValidMove) {
+            // console.log( legalMoves ) ;
+            const findValidMove = legalMoves.filter(move => move.from === fromPos && move.to === toPos);
+            if (!findValidMove || !findValidMove.length) {
                 return callback({ success: false, message: MESSAGES.SOCKET.INVALID_MOVE });
             }
-            
-            
-            const moveResult = chess.move({ from: fromPos, to: toPos });
-            let gameStatus = CONSTANTS.GAME_STATUS.ONGOING;
-            let messageForCurrentUser, messageForOpponent;
+            // console.log( "promotedPiece" , promotedPiece ) ;
+            if(!promotedPiece && findValidMove[0].promotion) {
+                socket.emit(SOCKET_EVENTS.PROMOTION_MOVE , { message : MESSAGES.SOCKET.PAWN_PROMOTION_MOVE , data : findValidMove } )
+                return callback({ success: true, message: MESSAGES.SOCKET.PAWN_PROMOTION_MOVE , data : findValidMove });
+            }
+            // console.log( "promotedPiece111111" , promotedPiece ) ;
+            const moveResult = chess.move({ from: fromPos, to: toPos , promotion : promotedPiece });
+            let gameStatus = CONSTANTS.GAME_STATUS.ONGOING ; 
+            let messageForCurrentUser, messageForOpponent ;
             if (chess.inCheck()) {
                 gameStatus = CONSTANTS.GAME_STATUS.CHECK;
-                messageForCurrentUser = MESSAGES.SOCKET.GETTING_CHECK;
+                         messageForCurrentUser = MESSAGES.SOCKET.GETTING_CHECK;
                 messageForOpponent = MESSAGES.SOCKET.GETTING_CHECK;
             }
             if (chess.isCheckmate()) {
