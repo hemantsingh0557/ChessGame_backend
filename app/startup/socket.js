@@ -180,6 +180,7 @@ socketConnection.connect = (io) => {
             data = JSON.parse(data);
             console.log( data) ;
             const { gameRoomId, fromPos, toPos, orientation , promotedPiece } = data;
+            // promotedPiece = promotedPiece.toLowerCase();
             const checkGameRoomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
             if (!checkGameRoomExists) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
@@ -210,12 +211,45 @@ socketConnection.connect = (io) => {
                 return callback({ success: false, message: MESSAGES.SOCKET.INVALID_MOVE });
             }
             // console.log( "promotedPiece" , promotedPiece ) ;
-            if(!promotedPiece && findValidMove[0].promotion) {
-                socket.emit(SOCKET_EVENTS.PROMOTION_MOVE , { message : MESSAGES.SOCKET.PAWN_PROMOTION_MOVE , data : findValidMove } )
+            if(!promotedPiece && findValidMove[0].flags.includes('p') ) { // for promotion moves 
+                console.log( "promotedPiece => " , data ) ;
+                socket.emit(SOCKET_EVENTS.PROMOTION_MOVE , { message : MESSAGES.SOCKET.PAWN_PROMOTION_MOVE , data : data } )
                 return callback({ success: true, message: MESSAGES.SOCKET.PAWN_PROMOTION_MOVE , data : findValidMove });
             }
+            if( findValidMove[0].flags.includes('e') ) { // for en passant move
+                const capturedPawnPosition = `${toPos.charAt(0)}${fromPos.charAt(1)}` ;
+                console.log( "PAWN_EN_PASSANT_MOVE" , fromPos , " " , toPos ,  " " , capturedPawnPosition ) ;
+                socket.emit(SOCKET_EVENTS.EN_PASSANT_MOVE , { message : MESSAGES.SOCKET.PAWN_EN_PASSANT_MOVE , data : capturedPawnPosition } )
+            }
+            if (findValidMove[0].flags.includes('k')) { // King's Side Castling move
+                const rookFrom = 'h' + fromPos[1]; // Rook starts from the h-file
+                const rookTo = 'f' + fromPos[1];   // Rook moves to the f-file
+                const updatedPosition = {
+                    kingFromPos : fromPos ,
+                    kingToPos : toPos ,
+                    rookFromPos : rookFrom ,
+                    rookToPos : rookTo ,
+                }
+                console.log("King's Side Castling move", updatedPosition);
+                socket.emit(SOCKET_EVENTS.CASTLING_MOVE, { message: MESSAGES.SOCKET.KINGS_SIDE_CASTLING, data: updatedPosition });
+            } 
+            if (findValidMove[0].flags.includes('q')) { // Queen's Side Castling move
+                const rookFrom = 'a' + fromPos[1]; // Rook starts from the a-file
+                const rookTo = 'd' + fromPos[1];   // Rook moves to the d-file
+                const updatedPosition = {
+                    kingFromPos : fromPos ,
+                    kingToPos : toPos ,
+                    rookFromPos : rookFrom ,
+                    rookToPos : rookTo ,
+                }
+                console.log("Queen's Side Castling move", updatedPosition);
+                socket.emit(SOCKET_EVENTS.CASTLING_MOVE, {  message: MESSAGES.SOCKET.QUEENS_SIDE_CASTLING, data : updatedPosition });
+            }
+            
+            
             // console.log( "promotedPiece111111" , promotedPiece ) ;
             const moveResult = chess.move({ from: fromPos, to: toPos , promotion : promotedPiece });
+            console.log( "moveResult ====> " , moveResult ) ;
             let gameStatus = CONSTANTS.GAME_STATUS.ONGOING ; 
             let messageForCurrentUser, messageForOpponent ;
             if (chess.inCheck()) {
