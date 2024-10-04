@@ -20,6 +20,7 @@ socketEventsSchema.movePiece = Joi.object({
     fromPos: Joi.string().length(2).required(),
     toPos: Joi.string().length(2).required(),
     orientation: Joi.string().valid('w', 'b').required(),
+    promotedPiece: Joi.string().valid('q', 'r' , 'b' , 'n').optional(),
 });
 
 module.exports = socketEventsSchema;
