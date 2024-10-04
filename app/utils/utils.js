@@ -28,10 +28,10 @@ commonFunctions.validateSocketEvent = ([event, ...args], next) => {
     console.log(`Event received: ${event}, Data received:`, args[0]);
     let data = {} ;
     if (event !== SOCKET_EVENTS.START_GAME) {
-        console.log( "eventname  " , event  ) ;
+        // console.log( "eventname  " , event  ) ;
         data = args[0] ? JSON.parse(args[0]) : {}; 
         args[0] = data; // Store parsed data in args[0]
-        console.log( data , "okkoko ", args[0] ) ;
+        // console.log( data , "okkoko ", args[0] ) ;
     }
     let result;
     try {
