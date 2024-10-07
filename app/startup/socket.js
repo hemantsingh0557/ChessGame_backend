@@ -220,7 +220,8 @@ socketConnection.connect = (io) => {
             if( findValidMove[0].flags.includes('e') ) { // for en passant move
                 const capturedPawnPosition = `${toPos.charAt(0)}${fromPos.charAt(1)}` ;
                 console.log( "PAWN_EN_PASSANT_MOVE   " , fromPos , " " , toPos ,  " " , capturedPawnPosition ) ;
-                socket.emit(SOCKET_EVENTS.EN_PASSANT_MOVE , { message : MESSAGES.SOCKET.PAWN_EN_PASSANT_MOVE , data : capturedPawnPosition } )
+                socket.emit(SOCKET_EVENTS.EN_PASSANT_MOVE , { message : MESSAGES.SOCKET.PAWN_EN_PASSANT_MOVE , data : {capturedPawnPosition} } )
+                socket.to(gameRoomId).emit(SOCKET_EVENTS.EN_PASSANT_MOVE , { message : MESSAGES.SOCKET.PAWN_EN_PASSANT_MOVE , data : {capturedPawnPosition} } )
             }
             if (findValidMove[0].flags.includes('k')) { // King's Side Castling move
                 const rookFrom = 'h' + fromPos[1]; // Rook starts from the h-file
@@ -233,6 +234,7 @@ socketConnection.connect = (io) => {
                 }
                 console.log("King's Side Castling move   ", updatedPosition);
                 socket.emit(SOCKET_EVENTS.CASTLING_MOVE, { message: MESSAGES.SOCKET.KINGS_SIDE_CASTLING, data: updatedPosition });
+                socket.to(gameRoomId).emit(SOCKET_EVENTS.CASTLING_MOVE, { message: MESSAGES.SOCKET.KINGS_SIDE_CASTLING, data: updatedPosition });
             } 
             if (findValidMove[0].flags.includes('q')) { // Queen's Side Castling move
                 const rookFrom = 'a' + fromPos[1]; // Rook starts from the a-file
@@ -298,9 +300,9 @@ socketConnection.connect = (io) => {
                 socket.emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
                 socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
             } 
-            else if ( gameStatus === CONSTANTS.GAME_STATUS.CHECK ) {
-                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_CHECK, { success : true , kingPos: , gameStatus: gameStatus, message: messageForCurrentUser });
-            }
+            // else if ( gameStatus === CONSTANTS.GAME_STATUS.CHECK ) {
+            //     socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_CHECK, { success : true , kingPos: , gameStatus: gameStatus, message: messageForCurrentUser });
+            // }
             else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING ) {
                 socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
             }
