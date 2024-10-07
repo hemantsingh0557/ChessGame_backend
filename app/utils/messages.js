@@ -60,6 +60,7 @@ module.exports = {
         MATCH_FOUND : "MATCH_FOUND" ,
         NO_MATCH_FOUND : "No players found. Please try again later." ,
         GAME_STATE_NOT_FOUND : "Game state not found." ,
+        GAME_STATE_FOUND : "Game state found." ,
         INVALID_GAME_TURN : "INVALID_GAME_TURN." ,
         INVALID_MOVE : "Invalid move." ,
         CANNOT_MOVE_IN_CHECK : "CANNOT_MOVE_IN_CHECK." ,
