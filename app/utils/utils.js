@@ -41,6 +41,9 @@ commonFunctions.validateSocketEvent = ([event, ...args], next) => {
         else if (event === SOCKET_EVENTS.JOIN_GAME_ROOM) {
             result = socketEventsSchema.joinGameRoom.validate(data);
         } 
+        else if (event === SOCKET_EVENTS.GET_GAME_STATE) {
+            result = socketEventsSchema.getGameState.validate(data);
+        } 
         else if (event === SOCKET_EVENTS.VALID_MOVES) {
             result = socketEventsSchema.validMoves.validate(data);
         } 
