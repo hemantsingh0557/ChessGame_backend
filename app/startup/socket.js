@@ -160,11 +160,11 @@ socketConnection.connect = (io) => {
             }
             socket.join(gameRoomId);
             const responseObject = {
-                opponentId ,
-                opponentName : opponent.name ,
-                opponentRanking : opponent.rating ,
-                opponentImage : opponent.imageUrl ,
-                gameState
+                id : opponent.id ,
+                name : opponent.name ,
+                username : opponent.username ,
+                imageUrl : opponent.imageUrl ,
+                gameState ,
             }
             callback({ success: true, message: MESSAGES.SOCKET.GAME_STATE_FOUND , data : responseObject });
         });
