@@ -9,6 +9,10 @@ socketEventsSchema.joinGameRoom = Joi.object({
     gameRoomId: Joi.string().uuid().required(),
 });
 
+socketEventsSchema.getGameState = Joi.object({
+    gameRoomId: Joi.string().uuid().required(),
+});
+
 socketEventsSchema.validMoves = Joi.object({
     gameRoomId: Joi.string().uuid().required(),
     selectedPosition: Joi.string().length(2).required(),
