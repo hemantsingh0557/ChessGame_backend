@@ -49,9 +49,12 @@ userController.userSignin = async (payload) => {
     if (!isMatch) {
         return createErrorResponse(CONSTANTS.MESSAGES.INVALID_PASSWORD, CONSTANTS.ERROR_TYPES.BAD_REQUEST);
     }
-    const isUserSessionExists = await sessionService.findSession({ where: { userId: user.id } });
-    if (isUserSessionExists) {
-        return createErrorResponse(CONSTANTS.MESSAGES.SESSION_ALREADY_EXISTS, CONSTANTS.ERROR_TYPES.ALREADY_EXISTS);
+    const existingSession = await sessionService.findSession({ where: { userId : user.id } });
+    if (user.isOnline && existingSession) {
+        return createErrorResponse(CONSTANTS.MESSAGES.USER_IS_ALREADY_ONLINE, CONSTANTS.ERROR_TYPES.ALREADY_EXISTS);
+    }
+    if (existingSession) {
+        await sessionService.deleteSession({ where: { userId: user.id } });
     }
     // await userService.updateUser({ id: user.id }, { isOnline: true });
     const jwtToken = commonFunctions.encryptJwt({ userId: user.id, email: user.email, username: user.username });
@@ -171,10 +174,6 @@ userController.getAllUsernamesAndEmails = async (payload) => {
 
 userController.userLogout = async (payload) => {
     const { user } = payload ; 
-    // const isSessionExists = await sessionService.findSession({ where: { userId : user.id } });
-    // if (!isSessionExists) {
-    //     return createErrorResponse(CONSTANTS.MESSAGES.NO_SESSION_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
-    // }
     await sessionService.deleteSession({ where: { userId : user.id } });
     await waitingPlayerService.removePlayerFromWaitingListInDb({ where: { userId : user.id } }) ;
     return createSuccessResponse(CONSTANTS.MESSAGES.LOGGED_OUT_SUCCESSFULLY);
