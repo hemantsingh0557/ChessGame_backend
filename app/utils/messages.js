@@ -10,6 +10,7 @@ module.exports = {
     LOGGED_OUT_SUCCESSFULLY: 'Logged out successfully.',
     UNAUTHORIZED: 'Unauthorized access!',
     SESSION_EXPIRED: 'SESSION_EXPIRED!',
+    USER_IS_ALREADY_ONLINE: 'USER_IS_ALREADY_ONLINE!',
 
     
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
