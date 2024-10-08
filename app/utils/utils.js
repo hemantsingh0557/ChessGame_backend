@@ -59,9 +59,9 @@ commonFunctions.validateSocketEvent = ([event, ...args], next) => {
     } catch (error) {
         console.log('Validation Error:', error);
         if(typeof args[0] === 'function')
-            args[0]({success: false, message: error.error.message})
+            args[0]({success: false, message: error.message})
         else if(typeof args[1] === 'function')
-            args[1]({success: false, message: error.error.message})
+            args[1]({success: false, message: error.message})
         // next(new Error('Invalid event data'));
     }
 };
