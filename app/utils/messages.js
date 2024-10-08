@@ -12,7 +12,7 @@ module.exports = {
     SESSION_EXPIRED: 'SESSION_EXPIRED!',
     USER_IS_ALREADY_ONLINE: 'USER_IS_ALREADY_ONLINE!',
     GAME_ROOM_NOT_EXISTS: 'GAME_ROOM_NOT_EXISTS!',
-
+    GAME_STATE_NOT_FOUND : "GAME_STATE_NOT_FOUND" ,
     
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
     EMAIL_IS_WORKING_FINE: 'Email service is working fine.',
