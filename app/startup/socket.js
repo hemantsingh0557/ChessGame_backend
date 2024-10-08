@@ -63,12 +63,20 @@ socketConnection.connect = (io) => {
                             ]
                         }
                     });
-                    const gameRoom = await gameService.createGameRoom({
+                    // const gameRoom = await gameService.createGameRoom({
+                    //     userId1: userId,
+                    //     userId2: opponentPlayer.userId,
+                    //     playerOneColor: 'w',  
+                    //     playerTwoColor: 'b',  
+                    //     finalGameStatus : CONSTANTS.GAME_STATUS.ONGOING ,
+                    // });
+                    const gameRoom  = await gameService.createOrUpdateGame( {
                         userId1: userId,
                         userId2: opponentPlayer.userId,
                         playerOneColor: 'w',  
                         playerTwoColor: 'b',  
-                    });
+                        finalGameStatus : CONSTANTS.GAME_STATUS.ONGOING ,
+                    } );
                     
         
                     const chess = new Chess();
@@ -343,10 +351,12 @@ socketConnection.connect = (io) => {
                 status: gameStatus,
                 promotedPiece
             };
+            await gameService.createOrUpdateGame( {id : gameRoomId , finalGameStatus : gameStatus} );
             await gameStateService.createGameState(responseObject);
             socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
                 console.log( "checkmate => " , gameStatus ) ;
+                await gameService.createOrUpdateGame( {id : gameRoomId , finalGameStatus : gameStatus , finalWinnerUserId : userId } );
                 socket.emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
                 socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
             } 
