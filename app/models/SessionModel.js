@@ -10,7 +10,6 @@ const SessionModel = sequelize.define('Session', {
     userId: {
         type: DataTypes.UUID,
         allowNull: false,
-        unique: true, 
     },
     token: {
         type: DataTypes.TEXT,  
