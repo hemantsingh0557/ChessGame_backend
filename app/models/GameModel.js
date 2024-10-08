@@ -1,5 +1,6 @@
-const { DataTypes, UUID } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('../startup/db_mySql');
+const CONSTANTS = require('../utils/constants');
 
 const GameModel = sequelize.define('GameModel', {
     id: {
@@ -9,20 +10,29 @@ const GameModel = sequelize.define('GameModel', {
     },
     userId1: {
         type: DataTypes.UUID,
-        allowNull: false,   
+        allowNull: false,
     },
     userId2: {
         type: DataTypes.UUID,
-        allowNull: false,  
+        allowNull: false,
     },
     playerOneColor: {
         type: DataTypes.ENUM('w', 'b'),  
-        allowNull: false,  
+        allowNull: false,
     },
     playerTwoColor: {
-        type: DataTypes.ENUM('w', 'b'),   
-        allowNull: false,  
+        type: DataTypes.ENUM('w', 'b'),
+        allowNull: false,
     },
+    finalGameStatus: {
+        type: DataTypes.STRING,  
+        allowNull: true,
+        defaultValue: CONSTANTS.GAME_STATUS.ONGOING,  
+    },
+    finalWinnerUserId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    }
 }, 
 {
     timestamps: true,    
