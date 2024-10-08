@@ -28,7 +28,7 @@ const GameStateModel = sequelize.define('GameState', {
     },
     currentMove: {
         type: DataTypes.STRING,  
-        allowNull: false,
+        allowNull: true,
     },
     piece: {
         type: DataTypes.STRING,  
@@ -49,4 +49,3 @@ const GameStateModel = sequelize.define('GameState', {
 });
 
 module.exports = GameStateModel;
-
