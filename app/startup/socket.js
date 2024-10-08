@@ -79,8 +79,12 @@ socketConnection.connect = (io) => {
                     console.log( "initialBoardState" , initialBoardState )
                     const initialGameState = await gameStateService.createGameState({
                         gameRoomId: gameRoom.id,
-                        boardState: initialBoardState
+                        boardState: initialBoardState,
+                        currentTurn: "w",
+                        nextTurn: "b",
+                        status: CONSTANTS.GAME_STATUS.ONGOING
                     });
+                    
                     const userDetails = await userService.findOne({ id : userId })
                     const opponentDetails = await userService.findOne({ id : opponentPlayer.userId })
                     const userResponseObject = {
@@ -173,9 +177,10 @@ socketConnection.connect = (io) => {
                 },
                 boardState: gameState.boardState ,
                 currentTurn :  gameState.currentTurn ,
+                nextTurn: gameState.nextTurn ,
                 orientation : playerOneColor ,
             };
-            console.log( responseObject ) ;
+            console.log( "get game state response " , responseObject ) ;
             callback({ success: true, message: MESSAGES.SOCKET.GAME_STATE_FOUND , data : responseObject });
         });
 
