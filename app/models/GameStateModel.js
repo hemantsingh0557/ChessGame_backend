@@ -26,6 +26,18 @@ const GameStateModel = sequelize.define('GameState', {
         defaultValue: CONSTANTS.GAME_TURNS.BLACK, 
         allowNull: false,
     },
+    currentMove: {
+        type: DataTypes.STRING,  
+        allowNull: false,
+    },
+    piece: {
+        type: DataTypes.STRING,  
+        allowNull: true,
+    },
+    promotedPiece: {
+        type: DataTypes.STRING,  
+        allowNull: true,
+    },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -36,5 +48,5 @@ const GameStateModel = sequelize.define('GameState', {
     tableName: 'gamesStates',
 });
 
+module.exports = GameStateModel;
 
-module.exports = GameStateModel ;
