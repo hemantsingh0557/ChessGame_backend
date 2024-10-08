@@ -42,22 +42,22 @@ module.exports = [
         auth : true ,
         handler: gameController.getMovesHistory ,
     } ,
-    // {
-    //     method : "GET" ,
-    //     path : "/getUserAllGameHistory/",
-    //     joiSchemaForSwagger : {
-    //         group: 'Game',
-    //         description: 'Route to get all the games of the user ',
-    //         model: 'getUserAllGameHistory',
-    //         headers: {
-    //             authorization: Joi.string().required()
-    //         },
-    //         query :{
-    //             skip : Joi.number().default(0) ,
-    //             limit : Joi.number().default(20) ,
-    //         }    
-    //     } ,
-    //     auth : true ,
-    //     handler: gameController.getUserAllGameHistory ,
-    // }
+    {
+        method : "GET" ,
+        path : "/getUserAllGameHistory/",
+        joiSchemaForSwagger : {
+            group: 'Game',
+            description: 'Route to get all the games history of the user ',
+            model: 'getUserAllGameHistory',
+            headers: {
+                authorization: Joi.string().required()
+            },
+            query :{
+                skip : Joi.number().default(0) ,
+                limit : Joi.number().default(20) ,
+            }    
+        } ,
+        auth : true ,
+        handler: gameController.getUserAllGameHistory ,
+    }
 ]
