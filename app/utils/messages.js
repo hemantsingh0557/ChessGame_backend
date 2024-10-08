@@ -11,6 +11,7 @@ module.exports = {
     UNAUTHORIZED: 'Unauthorized access!',
     SESSION_EXPIRED: 'SESSION_EXPIRED!',
     USER_IS_ALREADY_ONLINE: 'USER_IS_ALREADY_ONLINE!',
+    GAME_ROOM_NOT_EXISTS: 'GAME_ROOM_NOT_EXISTS!',
 
     
     SERVER_IS_WORKING_FINE: 'Server is working fine.',
