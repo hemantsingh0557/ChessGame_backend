@@ -167,6 +167,10 @@ socketConnection.connect = (io) => {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_STATE_NOT_FOUND });
             }
             // socket.join(gameRoomId);
+            const boardState = gameState.boardState
+            const chess = new Chess();
+            chess.load(boardState);
+            const currentTurn = chess.turn();
             const responseObject = {
                 gameRoomId,
                 opponentDetails: {
@@ -176,8 +180,7 @@ socketConnection.connect = (io) => {
                     imageUrl : opponent.imageUrl
                 },
                 boardState: gameState.boardState ,
-                currentTurn :  gameState.currentTurn ,
-                nextTurn: gameState.nextTurn ,
+                turn : currentTurn ,
                 orientation : playerOneColor ,
             };
             console.log( "get game state response " , responseObject ) ;
@@ -298,11 +301,6 @@ socketConnection.connect = (io) => {
             console.log( "moveResult ====>    " , moveResult ) ;
             let gameStatus = CONSTANTS.GAME_STATUS.ONGOING ; 
             let messageForCurrentUser, messageForOpponent ;
-            if (chess.inCheck()) {
-                gameStatus = CONSTANTS.GAME_STATUS.CHECK;
-                messageForCurrentUser = MESSAGES.SOCKET.GETTING_CHECK;
-                messageForOpponent = MESSAGES.SOCKET.GETTING_CHECK;
-            }
             if (chess.isCheckmate()) {
                 gameStatus = CONSTANTS.GAME_STATUS.CHECKMATE;
                 messageForCurrentUser = MESSAGES.SOCKET.CHECKMATE_WIN;
@@ -327,6 +325,11 @@ socketConnection.connect = (io) => {
                 gameStatus = CONSTANTS.GAME_STATUS.THREEFOLD_REPETITION;  
                 messageForCurrentUser = MESSAGES.SOCKET.THREEFOLD_REPETITION;
                 messageForOpponent = MESSAGES.SOCKET.THREEFOLD_REPETITION;
+            }
+            else if (chess.inCheck()) {
+                gameStatus = CONSTANTS.GAME_STATUS.CHECK;
+                messageForCurrentUser = MESSAGES.SOCKET.GETTING_CHECK;
+                messageForOpponent = MESSAGES.SOCKET.GETTING_CHECK;
             }
             const currentMove = `${fromPos}-${toPos}`;
             const responseObject = { 
