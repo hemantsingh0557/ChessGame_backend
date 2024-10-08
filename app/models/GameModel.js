@@ -9,14 +9,24 @@ const GameModel = sequelize.define('GameModel', {
     },
     userId1: {
         type: DataTypes.UUID,
+        allowNull: false,   
     },
     userId2: {
         type: DataTypes.UUID,
+        allowNull: false,  
+    },
+    playerOneColor: {
+        type: DataTypes.ENUM('w', 'b'),  
+        allowNull: false,  
+    },
+    playerTwoColor: {
+        type: DataTypes.ENUM('w', 'b'),   
+        allowNull: false,  
     },
 }, 
 {
-    timestamps: true,
-    tableName: 'games',
+    timestamps: true,    
+    tableName: 'games',  
 });
 
 module.exports = GameModel;
