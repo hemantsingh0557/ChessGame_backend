@@ -10,7 +10,7 @@ module.exports = [
         joiSchemaForSwagger : {
             group: 'Game',
             description: 'Route to get the moves history of the game ',
-            model: 'gameModel',
+            model: 'getMovesHistory',
             headers: {
                 authorization: Joi.string().required()
             },
