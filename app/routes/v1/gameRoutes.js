@@ -4,18 +4,21 @@ const { Joi } = require("../../utils/joiUtils");
 
 
 module.exports = [
-    // {
-    //     method : "POST" ,
-    //     path : "/startGame",
-    //     joiSchemaForSwagger : {
-    //         group: 'Game',
-    //         description: 'Route to start game',
-    //         model: 'gameModel',
-    //         headers: {
-    //             authorization: Joi.string().required()
-    //         }
-    //     } ,
-    //     auth : true ,
-    //     handler: gameController.startGame ,
-    // }
+    {
+        method : "GET" ,
+        path : "/getMovesHistory/:gameRoomId",
+        joiSchemaForSwagger : {
+            group: 'Game',
+            description: 'Route to get the moves history of the game ',
+            model: 'gameModel',
+            headers: {
+                authorization: Joi.string().required()
+            },
+            params : {
+                gameRoomId: Joi.string().uuid().required(),
+            }
+        } ,
+        auth : true ,
+        handler: gameController.getMovesHistory ,
+    }
 ]
