@@ -66,7 +66,10 @@ socketConnection.connect = (io) => {
                     const gameRoom = await gameService.createGameRoom({
                         userId1: userId,
                         userId2: opponentPlayer.userId,
+                        playerOneColor: 'w',  
+                        playerTwoColor: 'b',  
                     });
+                    
         
                     const chess = new Chess();
                     const initialBoardState = chess.fen(); // Get the FEN string
@@ -149,6 +152,7 @@ socketConnection.connect = (io) => {
             if (!roomExists) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
             }
+            const playerOneColor = roomExists.userId1 == userId ? roomExists.playerOneColor : roomExists.playerTwoColor ;
             const opponentId = roomExists.userId1 == userId ? roomExists.userId2 : roomExists.userId1 ;
             const opponent = await userService.findOne({ id : opponentId  }) ;
             const gameState = await gameStateService.getCurrentGameState({
@@ -158,14 +162,20 @@ socketConnection.connect = (io) => {
             if (!gameState) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_STATE_NOT_FOUND });
             }
-            socket.join(gameRoomId);
+            // socket.join(gameRoomId);
             const responseObject = {
-                id : opponent.id ,
-                name : opponent.name ,
-                username : opponent.username ,
-                imageUrl : opponent.imageUrl ,
-                gameState ,
-            }
+                gameRoomId,
+                opponentDetails: {
+                    id : opponent.id ,
+                    name : opponent.name ,
+                    username : opponent.username ,
+                    imageUrl : opponent.imageUrl
+                },
+                boardState: gameState.boardState ,
+                currentTurn :  gameState.currentTurn ,
+                orientation : playerOneColor ,
+            };
+            console.log( responseObject ) ;
             callback({ success: true, message: MESSAGES.SOCKET.GAME_STATE_FOUND , data : responseObject });
         });
 
@@ -318,6 +328,7 @@ socketConnection.connect = (io) => {
                 gameRoomId: gameRoomId,
                 boardState: chess.fen(),
                 // boardState: "1k6/5R2/R7/1pP1p2p/8/4K3/6PP/8 b - - 0 41",
+                piece : moveResult.piece ,
                 currentTurn: currentTurn,
                 currentMove: currentMove,
                 nextTurn: nextTurn,
