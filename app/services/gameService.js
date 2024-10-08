@@ -6,8 +6,10 @@ const gameService = {} ;
 
 gameService.createGameRoom = async(payload) => await GameModel.create(payload)  ;
 
-gameService.checkIfRoomExists = async(payload) => await GameModel.findOne(payload)  ;
+gameService.createOrUpdateGame = async(updatePayload) => await GameModel.upsert({...updatePayload})  ;
 
+
+gameService.checkIfRoomExists = async(payload) => await GameModel.findOne(payload)  ;
 
 gameService.getAllGamesFromDB = async(payload) => await GameModel.findAll(payload)  ;
 
