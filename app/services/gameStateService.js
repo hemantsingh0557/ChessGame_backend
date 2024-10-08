@@ -13,7 +13,7 @@ gameStateService.createGameState = async(payload) => await GameStateModel.create
 
 gameStateService.getCurrentGameState = async(payload) => await GameStateModel.findOne(payload)  ;
 
-gameStateService.getAllGameState = async(payload) => await GameStateModel.find(payload)  ;
+gameStateService.getAllGameState = async(payload) => await GameStateModel.findAll(payload)  ;
 
 
 
