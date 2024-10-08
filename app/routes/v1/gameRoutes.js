@@ -16,7 +16,11 @@ module.exports = [
             },
             params : {
                 gameRoomId: Joi.string().uuid().required(),
-            }
+            } ,
+            query :{
+                skip : Joi.number().default(0) ,
+                limit : Joi.number().default(20) ,
+            }    
         } ,
         auth : true ,
         handler: gameController.getMovesHistory ,
