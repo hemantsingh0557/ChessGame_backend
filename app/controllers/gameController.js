@@ -108,8 +108,8 @@ gameController.getUserAllGameHistory = async(payload) => {
             opponentId ,
             playerOneColor ,
             playerTwoColor ,
-            status: game.gameStatus,
-            winner: game.winner || null,  
+            status: game.finalGameStatus,
+            winner: game.finalWinnerUserID ,  
         };
     });
     return createSuccessResponse(CONSTANTS.MESSAGES.GAMES_HISTORY_FOUND, gamesHistory);
