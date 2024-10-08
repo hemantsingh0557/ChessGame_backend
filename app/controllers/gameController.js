@@ -3,34 +3,41 @@
 const { Chess } = require("chess.js");
 const { createSuccessResponse, createErrorResponse } = require("../helpers");
 const { userService, gameService, gameStateService } = require("../services");
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const CONSTANTS = require("../utils/constants");
-
-
+const { sequelize } = require("../startup/db_mySql");
 
 const gameController = {};
 
-
 gameController.getMovesHistory = async (payload) => {
-    const { user , gameRoomId } = payload;
-    console.log( user , gameRoomId ) ;
-    const roomExists = await gameService.checkIfRoomExists({ where : { id : gameRoomId }});  
+    const { user, gameRoomId } = payload;
+    const roomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
     if (!roomExists) {
-        return createErrorResponse(CONSTANTS.MESSAGES.GAME_ROOM_NOT_EXISTS , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND)
+        return createErrorResponse(CONSTANTS.MESSAGES.GAME_ROOM_NOT_EXISTS, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
-    console.log( roomExists )
-    const gameStates = await gameStateService.getAllGameState({
+    const gameMovesHistory = await gameStateService.getAllGameState({
         where: { gameRoomId },
-        order: [['createdAt', 'ASC']]  ,
-        attributes : ["currentMove"]
+        attributes: [
+            'currentTurn' ,
+            'currentMove',
+            'piece',
+            'promotedPiece',
+        ],
+        order: [['createdAt', 'ASC']], 
+        offset: 1, 
     });
-    if (!gameStates || !gameStates.length ) {
-        return createErrorResponse(CONSTANTS.MESSAGES.GAME_STATE_NOT_FOUND , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND)
+    if (!gameMovesHistory || !gameMovesHistory.length) {
+        return createErrorResponse(CONSTANTS.MESSAGES.GAME_STATE_NOT_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
-    console.log( gameStates ) ;
-    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS , gameStates )
+    const whiteMoves = gameMovesHistory.filter(data => data.currentTurn === 'w')  ;
+    const blackMoves = gameMovesHistory.filter(data => data.currentTurn === 'b') ;
+    const responseObject = {
+        whiteMoves ,
+        blackMoves
+    } ;
+    console.log( whiteMoves  ) ;
+    console.log( blackMoves  ) ;
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS, responseObject );
 };
-
-
 
 module.exports = gameController;
