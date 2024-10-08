@@ -84,14 +84,35 @@ gameController.getMovesHistory = async (payload) => {
 
 
 
-// gameService.getUserAllGameHistory = async(payload) => {
-//     const {user } = payload ;
-//     const getAllGames = await gameService.getAllGamesFromDB(
-//         { where: { id: gameRoomId } }
-//     );
-//     if (!roomExists) {
-//         return createErrorResponse(CONSTANTS.MESSAGES.GAME_ROOM_NOT_EXISTS, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
-//     }
-// }
+gameController.getUserAllGameHistory = async(payload) => {
+    const {user , skip , limit } = payload ;
+    const getAllGames = await gameService.getAllGamesFromDB({
+        where: {
+            [Op.or]: [
+                { userId1: user.id },
+                { userId2: user.id }
+            ]
+        },
+        offset: skip,
+        limit: limit
+    });
+    if (!getAllGames ) {
+        return createErrorResponse(CONSTANTS.MESSAGES.GAMES_HISTORY_NOT_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
+    }
+    const gamesHistory = getAllGames.map((game) => {
+        const opponentId = game.userId1 === user.id ? game.userId2 : game.userId1;
+        const playerOneColor = game.userId1 === user.id ? game.playerOneColor : game.playerTwoColor;
+        const playerTwoColor = game.userId1 === user.id ? game.playerTwoColor : game.playerOneColor;
+        return {
+            userId: user.id,
+            opponentId ,
+            playerOneColor ,
+            playerTwoColor ,
+            status: game.gameStatus,
+            winner: game.winner || null,  
+        };
+    });
+    return createSuccessResponse(CONSTANTS.MESSAGES.GAMES_HISTORY_FOUND, gamesHistory);
+}
 
 module.exports = gameController;
