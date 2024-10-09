@@ -27,4 +27,8 @@ socketEventsSchema.movePiece = Joi.object({
     promotedPiece: Joi.string().valid('q', 'r' , 'b' , 'n').optional(),
 });
 
+socketEventsSchema.leaveGame = Joi.object({
+    gameRoomId: Joi.string().uuid().required(),
+});
+
 module.exports = socketEventsSchema;
