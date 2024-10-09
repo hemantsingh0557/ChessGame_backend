@@ -382,10 +382,13 @@ socketConnection.connect = (io) => {
             }
             const { userId1, userId2 } = checkGameRoomExists;
             const opponentId = (userId1 === userId) ? userId2 : userId1;
+            const opponent = await userService.findOne({ id : opponentId  }) ;
             await gameService.UpdateGame(
                 { where: { id: gameRoomId } },   
                 { finalGameStatus : CONSTANTS.GAME_STATUS.ABANDONED , finalWinnerUserId : opponentId , isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  }  
             );
+            socket.emit(SOCKET_EVENTS.GAME_ENDED, { gameStatus: CONSTANTS.GAME_STATUS.ABANDONED , message : MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY });
+            socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { gameStatus: CONSTANTS.GAME_STATUS.ABANDONED, message: MESSAGES.SOCKET.OPPONENT_ABANDONED_GAME });
             callback({success : true , message : MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY})
         })
         
