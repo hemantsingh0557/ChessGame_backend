@@ -10,7 +10,6 @@ const WaitingPlayerModel = sequelize.define('WaitingPlayer', {
     userId: {
         type: DataTypes.UUID,
         allowNull: false,  
-        unique: true, 
     },
     userSocketId: {
         type: DataTypes.UUID,
