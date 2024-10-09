@@ -36,7 +36,7 @@ module.exports = [
             } ,
             query :{
                 skip : Joi.number().default(0) ,
-                limit : Joi.number().default(20) ,
+                limit : Joi.number().default(10) ,
             }    
         } ,
         auth : true ,
