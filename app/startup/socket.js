@@ -376,6 +376,16 @@ socketConnection.connect = (io) => {
         socket.on(SOCKET_EVENTS.LEAVE_GAME , async(data , callback) => {
             data = JSON.parse(data);
             const { gameRoomId } = data ;
+            const checkGameRoomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
+            if (!checkGameRoomExists) {
+                return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
+            }
+            const { userId1, userId2 } = checkGameRoomExists;
+            const opponentId = (userId1 === userId) ? userId2 : userId1;
+            await gameService.UpdateGame(
+                { where: { id: gameRoomId } },   
+                { finalGameStatus : CONSTANTS.GAME_STATUS.ABANDONED , finalWinnerUserId : opponentId , isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  }  
+            );
             callback({success : true , message : MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY})
         })
         
