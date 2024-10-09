@@ -342,6 +342,7 @@ socketConnection.connect = (io) => {
             };
             await gameService.UpdateGame({ where: { id: gameRoomId } },   { finalGameStatus: gameStatus }  );
             await gameStateService.createGameState(responseObject);
+            socket.emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
                 console.log( "checkmate => " , gameStatus ) ;
