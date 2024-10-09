@@ -3,7 +3,7 @@
 const { Chess } = require("chess.js");
 const { createSuccessResponse, createErrorResponse } = require("../helpers");
 const { userService, gameService, gameStateService } = require("../services");
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const CONSTANTS = require("../utils/constants");
 const { sequelize } = require("../startup/db_mySql");
 
@@ -51,35 +51,46 @@ gameController.getMovesHistory = async (payload) => {
     if (!roomExists) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_ROOM_NOT_EXISTS, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
+    let totalMovesCount = await gameStateService.getAllGameState({
+        where: {
+            gameRoomId: gameRoomId,
+            // currentTurn: 'w'  
+        },
+    });
     const gameMovesHistory = await gameStateService.getAllGameState({
         where: { gameRoomId },
         attributes: [
-            'currentTurn',
+            'currentTurn', 
             'currentMove',
             'piece',
             'promotedPiece',
         ],
-        order: [['createdAt', 'DESC']],  
-        offset: skip + 1,   
-        limit: limit   
-    });    
+        order: [['createdAt', 'DESC']],  // ASC
+        offset: skip * 2 ,   
+        limit: limit * 2  
+    }); 
     if (!gameMovesHistory ) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_MOVES_NOT_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
-    const whiteMoves = gameMovesHistory.filter(data => data.currentTurn === 'w');
-    const blackMoves = gameMovesHistory.filter(data => data.currentTurn === 'b');
-    const combinedMoves = whiteMoves.map((whiteMove, index) => {
-        const blackMove = blackMoves[index] || {}; 
-        return {
-            whiteMove: whiteMove.currentMove?.substr(3),
+    let extra = 0 ;
+    if( gameMovesHistory[0].currentTurn == 'w' ) extra = 1 ;
+    // console.log( "extrasndcbsdbcsdbc" , extra  ) ;
+    const combinedMoves = [];
+    const n = gameMovesHistory.length ;
+    for (let i = n - 1 - extra ; i >= 0 ; i -= 2) {
+        const whiteMove = gameMovesHistory[i];
+        const blackMove = gameMovesHistory[i - 1] || {};   
+        combinedMoves.push({
+            whiteMove: whiteMove.currentMove?.substr(3),  
             whitePiece: whiteMove.piece,
             whitePromotedPiece: whiteMove.promotedPiece,
-            blackMove: blackMove.currentMove?.substr(3) || null, 
+            blackMove: blackMove.currentMove?.substr(3) || null,
             blackPiece: blackMove.piece || null,
             blackPromotedPiece: blackMove.promotedPiece || null,
-        };
-    });
-    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS, combinedMoves );
+        });
+    }
+    // combinedMoves.reverse() ;
+    return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS, {length : combinedMoves.length , totalMovesCount : totalMovesCount.length-1  , combinedMoves} );
 };
 
 
@@ -114,5 +125,7 @@ gameController.getUserAllGameHistory = async(payload) => {
     });
     return createSuccessResponse(CONSTANTS.MESSAGES.GAMES_HISTORY_FOUND, gamesHistory);
 }
+
+
 
 module.exports = gameController;
