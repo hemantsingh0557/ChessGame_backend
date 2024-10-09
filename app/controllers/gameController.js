@@ -61,7 +61,10 @@ gameController.getMovesHistory = async (payload) => {
         },
     });
     const gameMovesHistory = await gameStateService.getAllGameState({
-        where: { gameRoomId },
+        where: { 
+            gameRoomId,
+            currentMove: { [Op.ne]: null } 
+        },
         attributes: [
             'currentTurn', 
             'currentMove',
