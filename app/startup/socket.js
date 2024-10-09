@@ -370,6 +370,14 @@ socketConnection.connect = (io) => {
 
             callback({ success: true, message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject });
         });
+
+
+        
+        socket.on(SOCKET_EVENTS.LEAVE_GAME , async(data , callback) => {
+            data = JSON.parse(data);
+            const { gameRoomId } = data ;
+            callback({success : true , message : MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY})
+        })
         
         
         
