@@ -50,6 +50,9 @@ commonFunctions.validateSocketEvent = ([event, ...args], next) => {
         else if (event === SOCKET_EVENTS.MOVE_PIECE) {
             result = socketEventsSchema.movePiece.validate(data);
         }
+        else if (event === SOCKET_EVENTS.LEAVE_GAME) {
+            result = socketEventsSchema.leaveGame.validate(data);
+        }
         if (result.error) {
             console.log(`Validation Error:`, result.error.details[0].message);
             throw new Error(result.error.details[0].message);
