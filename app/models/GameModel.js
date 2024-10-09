@@ -32,6 +32,11 @@ const GameModel = sequelize.define('GameModel', {
     finalWinnerUserId: {
         type: DataTypes.UUID,
         allowNull: true,
+    } ,
+    isCompleted : {
+        type : DataTypes.STRING ,
+        allowNull : true ,
+        defaultValue : CONSTANTS.GAME_STATUS.NOT_COMPLETED
     }
 }, 
 {
