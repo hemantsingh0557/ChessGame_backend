@@ -63,26 +63,15 @@ socketConnection.connect = (io) => {
                             ]
                         }
                     });
-                    // const gameRoom = await gameService.createGameRoom({
-                    //     userId1: userId,
-                    //     userId2: opponentPlayer.userId,
-                    //     playerOneColor: 'w',  
-                    //     playerTwoColor: 'b',  
-                    //     finalGameStatus : CONSTANTS.GAME_STATUS.ONGOING ,
-                    // });
-                    const gameRoom  = await gameService.createOrUpdateGame( {
+                    const gameRoom = await gameService.createGameRoom({
                         userId1: userId,
                         userId2: opponentPlayer.userId,
                         playerOneColor: 'w',  
                         playerTwoColor: 'b',  
                         finalGameStatus : CONSTANTS.GAME_STATUS.ONGOING ,
-                    } );
-                    
-        
+                    });
                     const chess = new Chess();
                     const initialBoardState = chess.fen(); // Get the FEN string
-                    // const initialBoardState = "1k6/5R2/R7/1pP1p2p/8/4K3/6PP/8 b - - 0 41"; // Get the FEN string
-                    // chess.load(initialBoardState) ;
                     const currentTurn = chess.turn();
                     console.log( "initialBoardState" , initialBoardState )
                     const initialGameState = await gameStateService.createGameState({
@@ -351,12 +340,12 @@ socketConnection.connect = (io) => {
                 status: gameStatus,
                 promotedPiece
             };
-            await gameService.createOrUpdateGame( {id : gameRoomId , finalGameStatus : gameStatus} );
+            await gameService.UpdateGame({ where: { id: gameRoomId } },   { finalGameStatus: gameStatus }  );
             await gameStateService.createGameState(responseObject);
             socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
                 console.log( "checkmate => " , gameStatus ) ;
-                await gameService.createOrUpdateGame( {id : gameRoomId , finalGameStatus : gameStatus , finalWinnerUserId : userId } );
+                await gameService.UpdateGame({ where: { id: gameRoomId } },   { finalGameStatus : gameStatus , finalWinnerUserId : userId }  );
                 socket.emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
                 socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
             } 
