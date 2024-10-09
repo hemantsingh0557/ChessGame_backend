@@ -16,7 +16,7 @@ gameController.getGameCurrentState = async (payload) => {
     if (!roomExists) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_ROOM_NOT_EXISTS, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
-    if( roomExists.isCompleted ) {
+    if( roomExists.isCompleted === CONSTANTS.GAME_STATUS.COMPLETED ) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_ALREADY_COMPLETED , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND );
     }
     const playerOneColor = roomExists.userId1 == userId ? roomExists.playerOneColor : roomExists.playerTwoColor ;
@@ -78,8 +78,11 @@ gameController.getMovesHistory = async (payload) => {
     if (!gameMovesHistory ) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_MOVES_NOT_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
+    // if (!gameMovesHistory.length ) {
+    //     return createSuccessResponse(CONSTANTS.MESSAGES.SUCCESS, {length : combinedMoves.length , totalMovesCount : totalMovesCount.length-1  , combinedMoves} );
+    // }
     let extra = 0 ;
-    if( gameMovesHistory[0].currentTurn == 'w' ) extra = 1 ;
+    if( gameMovesHistory.length && gameMovesHistory[0].currentTurn == 'w' ) extra = 1 ;
     // console.log( "extrasndcbsdbcsdbc" , extra  ) ;
     const combinedMoves = [];
     const n = gameMovesHistory.length ;
