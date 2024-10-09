@@ -87,6 +87,7 @@ module.exports = {
         PAWN_EN_PASSANT_MOVE: 'PAWN_EN_PASSANT_MOVE',
         KINGS_SIDE_CASTLING: 'KINGS_SIDE_CASTLING',
         QUEENS_SIDE_CASTLING: 'QUEENS_SIDE_CASTLING',
+        GAME_LEAVE_SUCCESSFULLY: 'GAME_LEAVE_SUCCESSFULLY',
 
         SOCKET_IS_RUNNING_FINE: 'Socket is running fine',
         MESSAGE_SENT: 'Message sent successfully',
