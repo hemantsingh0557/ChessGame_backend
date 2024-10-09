@@ -16,6 +16,9 @@ gameController.getGameCurrentState = async (payload) => {
     if (!roomExists) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_ROOM_NOT_EXISTS, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
+    if( roomExists.isCompleted ) {
+        return createErrorResponse(CONSTANTS.MESSAGES.GAME_ALREADY_COMPLETED , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND );
+    }
     const playerOneColor = roomExists.userId1 == userId ? roomExists.playerOneColor : roomExists.playerTwoColor ;
     const opponentId = roomExists.userId1 == userId ? roomExists.userId2 : roomExists.userId1 ;
     const opponent = await userService.findOne({ id : opponentId  }) ;
