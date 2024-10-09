@@ -59,7 +59,7 @@ gameController.getMovesHistory = async (payload) => {
             'piece',
             'promotedPiece',
         ],
-        order: [['createdAt', 'ASC']],  
+        order: [['createdAt', 'DESC']],  
         offset: skip + 1,   
         limit: limit   
     });    
