@@ -42,12 +42,12 @@ const GameModel = sequelize.define('GameModel', {
     playerOneTimeRemaining: {  
         type: DataTypes.INTEGER, 
         allowNull: true,
-        defaultValue: CONSTANTS.TIMER.CLASSICAL,  
+        defaultValue: CONSTANTS.GAME_TIMER.CLASSICAL,  
     },
     playerTwoTimeRemaining: {  
         type: DataTypes.INTEGER,
         allowNull: true,
-        defaultValue: CONSTANTS.TIMER.CLASSICAL,
+        defaultValue: CONSTANTS.GAME_TIMER.CLASSICAL,
     },
 }, {
     timestamps: true,
