@@ -69,6 +69,8 @@ socketConnection.connect = (io) => {
                         playerOneColor: 'w',  
                         playerTwoColor: 'b',  
                         finalGameStatus : CONSTANTS.GAME_STATUS.ONGOING ,
+                        playerOneTimeRemaining : CONSTANTS.GAME_TIMER.CLASSICAL ,
+                        playerTwoTimeRemaining : CONSTANTS.GAME_TIMER.CLASSICAL ,
                     });
                     const chess = new Chess();
                     const initialBoardState = chess.fen(); // Get the FEN string
@@ -108,8 +110,23 @@ socketConnection.connect = (io) => {
                     };
                     // console.log( gameRoom.id , currentTurn ) ;
                     // console.log( boardState ) ;
-                    socket.emit(SOCKET_EVENTS.GAME_MATCHED, {...userResponseObject, orientation: 'white'});
-                    socket.to(opponentPlayer.userSocketId).emit(SOCKET_EVENTS.GAME_MATCHED, {...opponentResponseObject, orientation: 'black'} );
+                    socket.emit(SOCKET_EVENTS.GAME_MATCHED, 
+                        {
+                            ...userResponseObject, 
+                            orientation: 'white' ,
+                            remainingTime: CONSTANTS.GAME_TIMER.CLASSICAL,
+                            opponentRemainingTime: CONSTANTS.GAME_TIMER.CLASSICAL 
+                        }
+                    );
+                    socket.to(opponentPlayer.userSocketId).emit(SOCKET_EVENTS.GAME_MATCHED, 
+                        {
+                            ...opponentResponseObject, 
+                            orientation: 'black' ,
+                            remainingTime: CONSTANTS.GAME_TIMER.CLASSICAL,
+                            opponentRemainingTime: CONSTANTS.GAME_TIMER.CLASSICAL 
+                        } 
+                    );
+                    console.log( "user1 => " , userId , " " , "user2=> " , opponentDetails.id );
                     if (typeof callback === 'function') {
                         console.log(`Game matched successfully for User ${userId}`);
                         return callback({ success: true, message: MESSAGES.SOCKET.MATCH_FOUND });
@@ -229,7 +246,8 @@ socketConnection.connect = (io) => {
             if (!checkGameRoomExists) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
             }
-            const { userId1, userId2 } = checkGameRoomExists;
+            let { userId1, userId2 , playerOneTimeRemaining , playerTwoTimeRemaining } = checkGameRoomExists;
+            const remainingTime = (userId1 === userId) ? playerOneTimeRemaining : playerTwoTimeRemaining ;
             const opponentId = (userId1 === userId) ? userId2 : userId1;
             const opponent = await userService.findOne({ id : opponentId  }) ;
             const gameState = await gameStateService.getCurrentGameState({
@@ -239,8 +257,23 @@ socketConnection.connect = (io) => {
             if (!gameState) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_STATE_NOT_FOUND });
             }
-            // const boardState = '1k6/4P3/8/8/8/8/8/4K3 w - - 0 1';
-            const boardState = gameState.boardState
+            const timeTakenInMove = Date.now() - new Date(checkGameRoomExists.updatedAt).getTime();
+            if (timeTakenInMove >= remainingTime) {
+                socket.emit(SOCKET_EVENTS.TIME_OUT, { message: MESSAGES.SOCKET.GAME_TIME_OUT });
+                socket.to(gameRoomId).emit(SOCKET_EVENTS.TIME_OUT, { message: MESSAGES.SOCKET.OPPONENT_TIME_OUT });
+                return callback({ success: false, message: MESSAGES.SOCKET.GAME_TIME_OUT });
+            }
+            console.log( "timeeeeeeeeeeeee" ,  playerOneTimeRemaining , playerTwoTimeRemaining )
+            console.log( "user1 => " , userId , " " , playerOneTimeRemaining ,);
+            console.log( "user2 => " , opponentId , " " , playerTwoTimeRemaining  );
+            const newRemainingTime = remainingTime - timeTakenInMove ;
+            if( userId === userId1 ) playerOneTimeRemaining = newRemainingTime ; 
+            else playerTwoTimeRemaining = newRemainingTime ;
+            console.log( "user1 => " , userId , " " , playerOneTimeRemaining ,);
+            console.log( "user2 => " , opponentId , " " , playerTwoTimeRemaining  );
+            
+            // const boardState = '1k6/4P3/8/8/8/8/8/4K3 w - - 0 1'; 
+            const boardState = gameState.boardState ;
             const chess = new Chess();
             chess.load(boardState);
             const currentTurn = chess.turn();
@@ -337,18 +370,45 @@ socketConnection.connect = (io) => {
                 currentTurn: currentTurn,
                 currentMove: currentMove,
                 nextTurn: nextTurn,
+                moveTime : timeTakenInMove ,
                 status: gameStatus,
                 promotedPiece
             };
-            await gameService.UpdateGame({ where: { id: gameRoomId } },   { finalGameStatus: gameStatus }  );
+            await gameService.UpdateGame(
+                { where: { id: gameRoomId } },   
+                { 
+                    finalGameStatus: gameStatus ,
+                    playerOneTimeRemaining ,
+                    playerTwoTimeRemaining
+                }  
+            );
             await gameStateService.createGameState(responseObject);
-            socket.emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
-            socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
+            socket.emit(SOCKET_EVENTS.MOVED, { message: MESSAGES.SOCKET.MOVE_SUCCESS,
+                data: {
+                    ...responseObject,
+                    remainingTime: playerOneTimeRemaining,
+                    opponentRemainingTime: playerTwoTimeRemaining 
+                }
+            });
+            socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, { message: MESSAGES.SOCKET.MOVE_SUCCESS,
+                data: {
+                    ...responseObject,
+                    remainingTime: playerTwoTimeRemaining,
+                    opponentRemainingTime: playerOneTimeRemaining 
+                }
+            });
+
             if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
                 console.log( "checkmate => " , gameStatus ) ;
                 await gameService.UpdateGame(
                     { where: { id: gameRoomId } },   
-                    { finalGameStatus : gameStatus , finalWinnerUserId : userId , isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  }  
+                    { 
+                        finalGameStatus : gameStatus , 
+                        finalWinnerUserId : userId , 
+                        isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  ,
+                        playerOneTimeRemaining ,
+                        playerTwoTimeRemaining
+                    }  
                 );
                 socket.emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
                 socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
@@ -360,7 +420,12 @@ socketConnection.connect = (io) => {
             else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING ) {
                 await gameService.UpdateGame(
                     { where: { id: gameRoomId } },   
-                    { finalGameStatus : gameStatus , isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  }  
+                    { 
+                        finalGameStatus : gameStatus , 
+                        isCompleted : CONSTANTS.GAME_STATUS.COMPLETED ,
+                        playerOneTimeRemaining ,
+                        playerTwoTimeRemaining 
+                    }  
                 );
                 console.log( "not ongoing draw => " , gameStatus ) ;
                 socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
@@ -380,25 +445,40 @@ socketConnection.connect = (io) => {
         });
 
 
+
         
-        socket.on(SOCKET_EVENTS.LEAVE_GAME , async(data , callback) => {
+
+
+        socket.on(SOCKET_EVENTS.LEAVE_GAME, async (data, callback) => {
             data = JSON.parse(data);
-            const { gameRoomId } = data ;
+            const { gameRoomId } = data;
             const checkGameRoomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
             if (!checkGameRoomExists) {
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
             }
             const { userId1, userId2 } = checkGameRoomExists;
-            const opponentId = (userId1 === userId) ? userId2 : userId1;
-            const opponent = await userService.findOne({ id : opponentId  }) ;
+            const opponentId = (userId1 === socket.userId) ? userId2 : userId1; // Ensure you get the correct opponent
+            const opponent = await userService.findOne({ id: opponentId });
             await gameService.UpdateGame(
-                { where: { id: gameRoomId } },   
-                { finalGameStatus : CONSTANTS.GAME_STATUS.ABANDONED , finalWinnerUserId : opponentId , isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  }  
+                { where: { id: gameRoomId } },
+                { finalGameStatus: CONSTANTS.GAME_STATUS.ABANDONED, finalWinnerUserId: opponentId, isCompleted: CONSTANTS.GAME_STATUS.COMPLETED }
             );
-            socket.emit(SOCKET_EVENTS.GAME_ENDED, { gameStatus: CONSTANTS.GAME_STATUS.ABANDONED , message : MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY });
-            socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { gameStatus: CONSTANTS.GAME_STATUS.ABANDONED, message: MESSAGES.SOCKET.OPPONENT_ABANDONED_GAME });
-            callback({success : true , message : MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY})
-        })
+            socket.emit(SOCKET_EVENTS.GAME_ENDED, {
+                gameStatus: CONSTANTS.GAME_STATUS.ABANDONED,
+                message: MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY
+            });
+            socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, {
+                gameStatus: CONSTANTS.GAME_STATUS.ABANDONED,
+                message: MESSAGES.SOCKET.OPPONENT_ABANDONED_GAME
+            });
+            socket.leave(gameRoomId);
+            const opponentSocket = io.sockets.sockets.get(opponent.userSocketId);
+            if (opponentSocket) {
+                opponentSocket.leave(gameRoomId);
+            }
+            callback({ success: true, message: MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY });
+        });
+        
         
         
         
