@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../startup/db_mySql');
 const CONSTANTS = require('../utils/constants');
 
+
 const GameModel = sequelize.define('GameModel', {
     id: {
         type: DataTypes.UUID,
@@ -17,7 +18,7 @@ const GameModel = sequelize.define('GameModel', {
         allowNull: false,
     },
     playerOneColor: {
-        type: DataTypes.ENUM('w', 'b'),  
+        type: DataTypes.ENUM('w', 'b'),
         allowNull: false,
     },
     playerTwoColor: {
@@ -25,23 +26,32 @@ const GameModel = sequelize.define('GameModel', {
         allowNull: false,
     },
     finalGameStatus: {
-        type: DataTypes.STRING,  
+        type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: CONSTANTS.GAME_STATUS.ONGOING,  
+        defaultValue: CONSTANTS.GAME_STATUS.ONGOING,
     },
     finalWinnerUserId: {
         type: DataTypes.UUID,
         allowNull: true,
-    } ,
-    isCompleted : {
-        type : DataTypes.STRING ,
-        allowNull : true ,
-        defaultValue : CONSTANTS.GAME_STATUS.NOT_COMPLETED
-    }
-}, 
-{
-    timestamps: true,    
-    tableName: 'games',  
+    },
+    isCompleted: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: CONSTANTS.GAME_STATUS.NOT_COMPLETED
+    },
+    playerOneTimeRemaining: {  
+        type: DataTypes.INTEGER, 
+        allowNull: false,
+        defaultValue: CONSTANTS.TIMER.CLASSICAL,  
+    },
+    playerTwoTimeRemaining: {  
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: CONSTANTS.TIMER.CLASSICAL,
+    },
+}, {
+    timestamps: true,
+    tableName: 'games',
 });
 
 module.exports = GameModel;
