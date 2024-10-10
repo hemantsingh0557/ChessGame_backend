@@ -16,6 +16,12 @@ CONSTANTS.SORT_ORDER = {
     DESC: 'DESC',
 }
 
+CONSTANTS.TIMER = {
+    RAPID: 15 * 60 * 1000,         // 15 minutes  
+    CLASSICAL: 60 * 60 * 1000,     // 60 minutes  
+};
+
+
 CONSTANTS.GAME_TURNS = {
     WHITE: "w",       
     BLACK: "b",    
