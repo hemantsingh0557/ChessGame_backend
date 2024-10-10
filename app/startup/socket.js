@@ -260,18 +260,25 @@ socketConnection.connect = (io) => {
             }
             const timeTakenInMove = Date.now() - new Date(checkGameRoomExists.updatedAt).getTime();
             if (timeTakenInMove >= currentUserRemainingTime) {
-                socket.emit(SOCKET_EVENTS.TIME_OUT, { message: MESSAGES.SOCKET.GAME_TIME_OUT });
-                socket.to(gameRoomId).emit(SOCKET_EVENTS.TIME_OUT, { message: MESSAGES.SOCKET.OPPONENT_TIME_OUT });
+                if( userId === userId1 ) playerOneTimeRemaining = 0 ; 
+                else playerTwoTimeRemaining = 0 ;
+                await gameService.UpdateGame(
+                    { where: { id: gameRoomId } },   
+                    { 
+                        finalGameStatus : CONSTANTS.GAME_STATUS.TIME_OUT , 
+                        finalWinnerUserId : opponentId , 
+                        isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  ,
+                        playerOneTimeRemaining ,
+                        playerTwoTimeRemaining
+                    }  
+                );
+                socket.emit(SOCKET_EVENTS.GAME_ENDED, { message: MESSAGES.SOCKET.GAME_TIME_OUT });
+                socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { message: MESSAGES.SOCKET.OPPONENT_TIME_OUT });
                 return callback({ success: false, message: MESSAGES.SOCKET.GAME_TIME_OUT });
             }
-            console.log( "userId=> " ,  userId , "   userId1=> " , userId1 , "userId2=> "  , userId2 ) ;
-            console.log( "currentUserRemainingTime  => " ,  currentUserRemainingTime )
-            console.log( "opponentRemainingTime  => " ,  opponentRemainingTime )
-            console.log( "timeeeeeeeeeeeee" ,  playerOneTimeRemaining , playerTwoTimeRemaining )
             const newRemainingTime = currentUserRemainingTime - timeTakenInMove ;
             if( userId === userId1 ) playerOneTimeRemaining = newRemainingTime ; 
             else playerTwoTimeRemaining = newRemainingTime ;
-            console.log( "timeeeeeeeeeeeee" ,  playerOneTimeRemaining , playerTwoTimeRemaining )
 
             // const boardState = '1k6/4P3/8/8/8/8/8/4K3 w - - 0 1'; 
             const boardState = gameState.boardState ;
@@ -469,6 +476,34 @@ socketConnection.connect = (io) => {
                 opponentSocket.leave(gameRoomId);
             }
             callback({ success: true, message: MESSAGES.SOCKET.GAME_LEAVE_SUCCESSFULLY });
+        });
+        
+
+
+        socket.on(SOCKET_EVENTS.TIME_OUT, async (data, callback) => {
+            data = JSON.parse(data);
+            const { gameRoomId ,  } = data;
+            const checkGameRoomExists = await gameService.checkIfRoomExists({ where: { id: gameRoomId } });
+            if (!checkGameRoomExists) {
+                return callback({ success: false, message: MESSAGES.SOCKET.GAME_ROOM_NOT_EXISTS });
+            }
+            let { userId1, userId2 , playerOneTimeRemaining , playerTwoTimeRemaining } = checkGameRoomExists;
+            const opponentId = (userId1 === userId) ? userId2 : userId1;
+            if( userId === userId1 ) playerOneTimeRemaining = 0 ; 
+            else playerTwoTimeRemaining = 0 ;
+            await gameService.UpdateGame(
+                { where: { id: gameRoomId } },   
+                { 
+                    finalGameStatus : CONSTANTS.GAME_STATUS.TIME_OUT , 
+                    finalWinnerUserId : opponentId , 
+                    isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  ,
+                    playerOneTimeRemaining ,
+                    playerTwoTimeRemaining
+                }  
+            );
+            socket.emit(SOCKET_EVENTS.GAME_ENDED, { message: MESSAGES.SOCKET.GAME_TIME_OUT });
+            socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { message: MESSAGES.SOCKET.OPPONENT_TIME_OUT });
+            callback({ success: true, message: MESSAGES.SOCKET.GAME_TIME_OUT });
         });
         
         
