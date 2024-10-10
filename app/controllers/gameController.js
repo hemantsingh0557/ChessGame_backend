@@ -19,6 +19,7 @@ gameController.getGameCurrentState = async (payload) => {
     if( roomExists.isCompleted === CONSTANTS.GAME_STATUS.COMPLETED ) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_ALREADY_COMPLETED , CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND );
     }
+    
     const playerOneColor = roomExists.userId1 == userId ? roomExists.playerOneColor : roomExists.playerTwoColor ;
     const opponentId = roomExists.userId1 == userId ? roomExists.userId2 : roomExists.userId1 ;
     const opponent = await userService.findOne({ id : opponentId  }) ;
@@ -29,6 +30,12 @@ gameController.getGameCurrentState = async (payload) => {
     if (!gameState) {
         return createErrorResponse(CONSTANTS.MESSAGES.GAME_STATE_NOT_FOUND, CONSTANTS.ERROR_TYPES.DATA_NOT_FOUND);
     }
+    console.log( gameState.currentTurn , playerOneColor )
+    let currentUserRemainingTime = (roomExists.userId1 === userId) ? roomExists.playerOneTimeRemaining : roomExists.playerTwoTimeRemaining ;
+    let opponentRemainingTime = (roomExists.userId1 === userId) ? roomExists.playerTwoTimeRemaining : roomExists.playerOneTimeRemaining ;
+    if( gameState.nextTurn == playerOneColor ) currentUserRemainingTime -= Date.now() - new Date(roomExists.updatedAt).getTime();
+    else opponentRemainingTime -= Date.now() - new Date(roomExists.updatedAt).getTime();
+    console.log( "time => " , currentUserRemainingTime/60000 ,  opponentRemainingTime/60000  ) ;
     const boardState = gameState.boardState
     const chess = new Chess();
     chess.load(boardState);
@@ -39,11 +46,13 @@ gameController.getGameCurrentState = async (payload) => {
             id : opponent.id ,
             name : opponent.name ,
             username : opponent.username ,
-            imageUrl : opponent.imageUrl
+            imageUrl : opponent.imageUrl ,
+            opponentRemainingTime: opponentRemainingTime ,
         },
         boardState: gameState.boardState ,
         turn : currentTurn ,
         orientation : playerOneColor ,
+        remainingTime: currentUserRemainingTime ,
     };
     return createSuccessResponse(CONSTANTS.MESSAGES.GAME_STATE_FOUND, responseObject );
 }
@@ -63,7 +72,7 @@ gameController.getMovesHistory = async (payload) => {
     const gameMovesHistory = await gameStateService.getAllGameState({
         where: { 
             gameRoomId,
-            currentMove: { [Op.ne]: null } 
+            // currentMove: { [Op.ne]: null } 
         },
         attributes: [
             'currentTurn', 
@@ -93,9 +102,11 @@ gameController.getMovesHistory = async (payload) => {
             whiteMove: whiteMove.currentMove?.substr(3),  
             whitePiece: whiteMove.piece,
             whitePromotedPiece: whiteMove.promotedPiece,
+            whiteMoveTime: whiteMove.moveTime,
             blackMove: blackMove.currentMove?.substr(3) || null,
             blackPiece: blackMove.piece || null,
             blackPromotedPiece: blackMove.promotedPiece || null,
+            blackMoveTime: blackMove.moveTime,
         });
     }
     // combinedMoves.reverse() ;
