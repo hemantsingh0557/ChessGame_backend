@@ -34,6 +34,11 @@ const GameStateModel = sequelize.define('GameState', {
         type: DataTypes.STRING,  
         allowNull: true,
     },
+    moveTime: {
+        type: DataTypes.INTEGER,  
+        allowNull: true,
+        defaultValue: 0, 
+    } ,
     promotedPiece: {
         type: DataTypes.STRING,  
         allowNull: true,
