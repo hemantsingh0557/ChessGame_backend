@@ -90,6 +90,11 @@ module.exports = {
         QUEENS_SIDE_CASTLING: 'QUEENS_SIDE_CASTLING',
         GAME_LEAVE_SUCCESSFULLY: 'GAME_LEAVE_SUCCESSFULLY',
         OPPONENT_ABANDONED_GAME: 'OPPONENT_ABANDONED_GAME',
+        GAME_TIME_OUT: 'GAME_TIME_OUT',
+        OPPONENT_TIME_OUT : "OPPONENT_TIME_OUT" ,
+
+
+
 
         SOCKET_IS_RUNNING_FINE: 'Socket is running fine',
         MESSAGE_SENT: 'Message sent successfully',
