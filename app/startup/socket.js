@@ -346,7 +346,10 @@ socketConnection.connect = (io) => {
             socket.to(gameRoomId).emit(SOCKET_EVENTS.MOVED, {message: MESSAGES.SOCKET.MOVE_SUCCESS, data: responseObject}) ;
             if (gameStatus === CONSTANTS.GAME_STATUS.CHECKMATE) {
                 console.log( "checkmate => " , gameStatus ) ;
-                await gameService.UpdateGame({ where: { id: gameRoomId } },   { finalGameStatus : gameStatus , finalWinnerUserId : userId }  );
+                await gameService.UpdateGame(
+                    { where: { id: gameRoomId } },   
+                    { finalGameStatus : gameStatus , finalWinnerUserId : userId , isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  }  
+                );
                 socket.emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
                 socket.to(opponent.userSocketId).emit(SOCKET_EVENTS.GAME_ENDED, { status: gameStatus, message: messageForOpponent });
             } 
@@ -355,7 +358,11 @@ socketConnection.connect = (io) => {
                 socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_CHECK, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
             }
             else if (gameStatus !== CONSTANTS.GAME_STATUS.ONGOING ) {
-                console.log( "not ongoing => " , gameStatus ) ;
+                await gameService.UpdateGame(
+                    { where: { id: gameRoomId } },   
+                    { finalGameStatus : gameStatus , isCompleted : CONSTANTS.GAME_STATUS.COMPLETED  }  
+                );
+                console.log( "not ongoing draw => " , gameStatus ) ;
                 socket.to(gameRoomId).emit(SOCKET_EVENTS.GAME_ENDED, { success : true , gameStatus: gameStatus, message: messageForCurrentUser });
             }
             // else if ( gameStatus === CONSTANTS.GAME_STATUS.ONGOING )
