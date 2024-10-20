@@ -131,8 +131,8 @@ socketConnection.connect = (io) => {
                         console.log(`Game matched successfully for User ${userId}`);
                         return callback({ success: true, message: MESSAGES.SOCKET.MATCH_FOUND });
                     }
-                    console.log("Callback not a function", userResponseObject);
-                    console.log("Callback not a function", opponentResponseObject);
+                    // console.log("Callback not a function", userResponseObject);
+                    // console.log("Callback not a function", opponentResponseObject);
                     return;
                 }
                 await new Promise(resolve => setTimeout(resolve, CONSTANTS.CHECK_INTERVAL));
@@ -158,7 +158,7 @@ socketConnection.connect = (io) => {
                 return callback({ success: false, message: MESSAGES.SOCKET.ALREADY_IN_ROOM });
             }
             socket.join(gameRoomId);
-            console.log(`User ${userId} joined ggggggggggggggggame room ${gameRoomId}`);
+            // console.log(`User ${userId} joined ggggggggggggggggame room ${gameRoomId}`);
             callback({ success: true, message: MESSAGES.SOCKET.ROOM_JOINED });
         });
 
