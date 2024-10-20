@@ -126,7 +126,7 @@ socketConnection.connect = (io) => {
                             opponentRemainingTime: CONSTANTS.GAME_TIMER.CLASSICAL 
                         } 
                     );
-                    console.log( "user1 => " , userId , " " , "user2=> " , opponentDetails.id );
+                    // console.log( "user1 => " , userId , " " , "user2=> " , opponentDetails.id );
                     if (typeof callback === 'function') {
                         console.log(`Game matched successfully for User ${userId}`);
                         return callback({ success: true, message: MESSAGES.SOCKET.MATCH_FOUND });
